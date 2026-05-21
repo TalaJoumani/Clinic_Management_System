@@ -1,0 +1,1105 @@
+{
+  "info": {
+    "_postman_id": "8fe00fae-6b0b-44df-b7dd-0360362c75fd",
+    "name": "clinic",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "50161166",
+    "_collection_link": "https://go.postman.co/collection/50161166-8fe00fae-6b0b-44df-b7dd-0360362c75fd?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "log in super admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "email",
+              "value": "superadmin@gmail.com",
+              "type": "text",
+              "uuid": "70770bb2-6c63-472d-bf1d-e975e225de12"
+            },
+            {
+              "key": "password",
+              "value": "password123",
+              "type": "text",
+              "uuid": "d15297cd-c1dd-444a-869c-b7095d904e13"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/login",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "add admin1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "1|xLUAcGKLQSLPa7s3crFs2tny32B2czfbS7esPvYue4da0f10",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "first_name",
+              "value": "admin",
+              "type": "text",
+              "uuid": "1e4aaeb3-6087-4335-8024-b8506ee006b0"
+            },
+            {
+              "key": "last_name",
+              "value": "1",
+              "type": "text",
+              "uuid": "b783951c-ec5d-4c12-a28a-bcc5a907235b"
+            },
+            {
+              "key": "email",
+              "value": "admin@gmail.com",
+              "type": "text",
+              "uuid": "004eaa21-5ef8-41f5-ad9f-39ac73f90c36"
+            },
+            {
+              "key": "password",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "8a9178c8-05bd-4b4e-94cf-849058aee1b0"
+            },
+            {
+              "key": "phone",
+              "value": "0996833977",
+              "type": "text",
+              "uuid": "84b85c68-19c6-4f2d-80ef-038ea2846c3d"
+            },
+            {
+              "key": "gender",
+              "value": "male",
+              "type": "text",
+              "uuid": "d756db64-35ff-4a64-b2ce-a3ab6ba21763"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/addAdmin",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "addAdmin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "add admin2",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "1|xLUAcGKLQSLPa7s3crFs2tny32B2czfbS7esPvYue4da0f10",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "first_name",
+              "value": "admin",
+              "type": "text",
+              "uuid": "1e4aaeb3-6087-4335-8024-b8506ee006b0"
+            },
+            {
+              "key": "last_name",
+              "value": "2",
+              "type": "text",
+              "uuid": "b783951c-ec5d-4c12-a28a-bcc5a907235b"
+            },
+            {
+              "key": "email",
+              "value": "admin2@gmail.com",
+              "type": "text",
+              "uuid": "004eaa21-5ef8-41f5-ad9f-39ac73f90c36"
+            },
+            {
+              "key": "password",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "8a9178c8-05bd-4b4e-94cf-849058aee1b0"
+            },
+            {
+              "key": "phone",
+              "value": "0937464322",
+              "type": "text",
+              "uuid": "84b85c68-19c6-4f2d-80ef-038ea2846c3d"
+            },
+            {
+              "key": "gender",
+              "value": "male",
+              "type": "text",
+              "uuid": "d756db64-35ff-4a64-b2ce-a3ab6ba21763"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/addAdmin",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "addAdmin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "add admin3",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "1|xLUAcGKLQSLPa7s3crFs2tny32B2czfbS7esPvYue4da0f10",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "first_name",
+              "value": "admin",
+              "type": "text",
+              "uuid": "1e4aaeb3-6087-4335-8024-b8506ee006b0"
+            },
+            {
+              "key": "last_name",
+              "value": "3",
+              "type": "text",
+              "uuid": "b783951c-ec5d-4c12-a28a-bcc5a907235b"
+            },
+            {
+              "key": "email",
+              "value": "admin3@gmail.com",
+              "type": "text",
+              "uuid": "004eaa21-5ef8-41f5-ad9f-39ac73f90c36"
+            },
+            {
+              "key": "password",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "8a9178c8-05bd-4b4e-94cf-849058aee1b0"
+            },
+            {
+              "key": "phone",
+              "value": "0937464323",
+              "type": "text",
+              "uuid": "84b85c68-19c6-4f2d-80ef-038ea2846c3d"
+            },
+            {
+              "key": "gender",
+              "value": "male",
+              "type": "text",
+              "uuid": "d756db64-35ff-4a64-b2ce-a3ab6ba21763"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/addAdmin",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "addAdmin"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "delete admin",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "1|xLUAcGKLQSLPa7s3crFs2tny32B2czfbS7esPvYue4da0f10",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/deleteAdmin?id=2",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "deleteAdmin"
+          ],
+          "query": [
+            {
+              "key": "id",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "show all admins",
+      "protocolProfileBehavior": {
+        "disableBodyPruning": true
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "1|xLUAcGKLQSLPa7s3crFs2tny32B2czfbS7esPvYue4da0f10",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": []
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/getAllAdmins",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "getAllAdmins"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "log in admin 2",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "email",
+              "value": "admin2@gmail.com",
+              "type": "text",
+              "uuid": "fc90f7ed-5b26-41ed-92c0-5a6faace2f8b"
+            },
+            {
+              "key": "password",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "85eaa9c5-047f-4b60-91f3-7f711ecb1a4d"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/login",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "add doctor 1",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "2|SxpFTMfSqRNQSaD9ZEMvxS5og0GurqRy4ADg4GX5f81e0da4",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "first_name",
+              "value": "doctor",
+              "type": "text",
+              "uuid": "e4839024-c0cd-45e1-b9a1-103591a3f4f9"
+            },
+            {
+              "key": "last_name",
+              "value": "1",
+              "type": "text",
+              "uuid": "8638ba42-7a77-4eb2-8063-92169bdf306e"
+            },
+            {
+              "key": "email",
+              "value": "doctor1@gmail.com",
+              "type": "text",
+              "uuid": "2a424987-0c2e-4058-8c9d-d55be41dbbca"
+            },
+            {
+              "key": "password",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "75d657c6-1dbd-4f31-a6b3-f89ed2559482"
+            },
+            {
+              "key": "specialization",
+              "value": "y",
+              "type": "text",
+              "uuid": "ecaf05d3-777e-455c-a6a5-49c4914f5726"
+            },
+            {
+              "key": "home_visit",
+              "value": "1",
+              "type": "text",
+              "uuid": "4d8440f6-be06-4d84-89f7-0e2483ff05ec"
+            },
+            {
+              "key": "phone",
+              "value": "0999999999",
+              "type": "text",
+              "uuid": "9b6f0751-9ae5-4c87-b31b-80b7c84317c6"
+            },
+            {
+              "key": "password_confirmation",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "f44e1912-1d47-4e2e-abff-41a24fdf1bdc"
+            },
+            {
+              "key": "day",
+              "value": "All",
+              "type": "text",
+              "uuid": "51d331d0-bb9a-4495-b9b0-2602d8af9dee"
+            },
+            {
+              "key": "start_time",
+              "value": "04:00",
+              "type": "text",
+              "uuid": "364cc65e-5690-4a23-9ef7-6fe09c82829f"
+            },
+            {
+              "key": "end_time",
+              "value": "07:00",
+              "type": "text",
+              "uuid": "395339c2-8a17-4bc0-86c1-8c023ece081f"
+            },
+            {
+              "key": "gender",
+              "value": "male",
+              "type": "text",
+              "uuid": "17483307-a503-4620-9729-dbad110028e7"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/addDoctor",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "addDoctor"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "log in admin3",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "email",
+              "value": "admin3@gmail.com",
+              "type": "text",
+              "uuid": "70770bb2-6c63-472d-bf1d-e975e225de12"
+            },
+            {
+              "key": "password",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "d15297cd-c1dd-444a-869c-b7095d904e13"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/login",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "add doctor2",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "3|zvYSLEjCW95ziBVqURCcO1ByEDjf3IVYx97icYiM33e78c58",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "first_name",
+              "value": "doctor",
+              "type": "text",
+              "uuid": "e4839024-c0cd-45e1-b9a1-103591a3f4f9"
+            },
+            {
+              "key": "last_name",
+              "value": "2",
+              "type": "text",
+              "uuid": "8638ba42-7a77-4eb2-8063-92169bdf306e"
+            },
+            {
+              "key": "email",
+              "value": "doctor2@gmail.com",
+              "type": "text",
+              "uuid": "2a424987-0c2e-4058-8c9d-d55be41dbbca"
+            },
+            {
+              "key": "password",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "75d657c6-1dbd-4f31-a6b3-f89ed2559482"
+            },
+            {
+              "key": "specialization",
+              "value": "z",
+              "type": "text",
+              "uuid": "ecaf05d3-777e-455c-a6a5-49c4914f5726"
+            },
+            {
+              "key": "home_visit",
+              "value": "0",
+              "type": "text",
+              "uuid": "4d8440f6-be06-4d84-89f7-0e2483ff05ec"
+            },
+            {
+              "key": "phone",
+              "value": "0999999912",
+              "type": "text",
+              "uuid": "9b6f0751-9ae5-4c87-b31b-80b7c84317c6"
+            },
+            {
+              "key": "password_confirmation",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "f44e1912-1d47-4e2e-abff-41a24fdf1bdc"
+            },
+            {
+              "key": "day",
+              "value": "All",
+              "type": "text",
+              "uuid": "51d331d0-bb9a-4495-b9b0-2602d8af9dee"
+            },
+            {
+              "key": "start_time",
+              "value": "04:00",
+              "type": "text",
+              "uuid": "364cc65e-5690-4a23-9ef7-6fe09c82829f"
+            },
+            {
+              "key": "end_time",
+              "value": "07:00",
+              "type": "text",
+              "uuid": "395339c2-8a17-4bc0-86c1-8c023ece081f"
+            },
+            {
+              "key": "gender",
+              "value": "male",
+              "type": "text",
+              "uuid": "17483307-a503-4620-9729-dbad110028e7"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/addDoctor",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "addDoctor"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "add doctor3",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "3|zvYSLEjCW95ziBVqURCcO1ByEDjf3IVYx97icYiM33e78c58",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "first_name",
+              "value": "doctor",
+              "type": "text",
+              "uuid": "e4839024-c0cd-45e1-b9a1-103591a3f4f9"
+            },
+            {
+              "key": "last_name",
+              "value": "3",
+              "type": "text",
+              "uuid": "8638ba42-7a77-4eb2-8063-92169bdf306e"
+            },
+            {
+              "key": "email",
+              "value": "doctor3@gmail.com",
+              "type": "text",
+              "uuid": "2a424987-0c2e-4058-8c9d-d55be41dbbca"
+            },
+            {
+              "key": "password",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "75d657c6-1dbd-4f31-a6b3-f89ed2559482"
+            },
+            {
+              "key": "specialization",
+              "value": "z",
+              "type": "text",
+              "uuid": "ecaf05d3-777e-455c-a6a5-49c4914f5726"
+            },
+            {
+              "key": "home_visit",
+              "value": "0",
+              "type": "text",
+              "uuid": "4d8440f6-be06-4d84-89f7-0e2483ff05ec"
+            },
+            {
+              "key": "phone",
+              "value": "0999999922",
+              "type": "text",
+              "uuid": "9b6f0751-9ae5-4c87-b31b-80b7c84317c6"
+            },
+            {
+              "key": "password_confirmation",
+              "value": "12345678",
+              "type": "text",
+              "uuid": "f44e1912-1d47-4e2e-abff-41a24fdf1bdc"
+            },
+            {
+              "key": "day",
+              "value": "All",
+              "type": "text",
+              "uuid": "51d331d0-bb9a-4495-b9b0-2602d8af9dee"
+            },
+            {
+              "key": "start_time",
+              "value": "04:00",
+              "type": "text",
+              "uuid": "364cc65e-5690-4a23-9ef7-6fe09c82829f"
+            },
+            {
+              "key": "end_time",
+              "value": "07:00",
+              "type": "text",
+              "uuid": "395339c2-8a17-4bc0-86c1-8c023ece081f"
+            },
+            {
+              "key": "gender",
+              "value": "male",
+              "type": "text",
+              "uuid": "17483307-a503-4620-9729-dbad110028e7"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/addDoctor",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "addDoctor"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "delete doctor",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "3|zvYSLEjCW95ziBVqURCcO1ByEDjf3IVYx97icYiM33e78c58",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "doctorId",
+              "value": "",
+              "type": "text",
+              "uuid": "91eb3f73-62d2-41b0-82c9-c5edad3cfbd1",
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/deleteDoctor?doctorId=8",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "deleteDoctor"
+          ],
+          "query": [
+            {
+              "key": "doctorId",
+              "value": "8"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "show all doctor for an admin",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "2|SxpFTMfSqRNQSaD9ZEMvxS5og0GurqRy4ADg4GX5f81e0da4",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/getAllDoctors",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "getAllDoctors"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "register patient",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "first_name",
+              "value": "manal",
+              "type": "text",
+              "uuid": "24a1c540-b5b3-4ad2-8a47-79432397c0f5"
+            },
+            {
+              "key": "last_name",
+              "value": "alali",
+              "type": "text",
+              "uuid": "a6d948c5-dd76-418d-a503-b71ad9f08ccc"
+            },
+            {
+              "key": "email",
+              "value": "talajoumani000@gmail.com",
+              "type": "text",
+              "uuid": "6a28fc9f-fdbf-4268-9666-d4c23112701c"
+            },
+            {
+              "key": "password",
+              "value": "12345679",
+              "type": "text",
+              "uuid": "e3cc351e-6759-4987-b265-23b984d1314d"
+            },
+            {
+              "key": "gender",
+              "value": "female",
+              "type": "text",
+              "uuid": "796e7f00-c8f3-4481-98a2-0d9d6bb74150"
+            },
+            {
+              "key": "phone",
+              "value": "0937464508",
+              "type": "text",
+              "uuid": "bcbe37db-0933-4630-854c-824800ff5c22"
+            },
+            {
+              "key": "birth",
+              "value": "1975-6-1",
+              "type": "text",
+              "uuid": "de3367a3-a314-4df3-a048-0a26537d395f"
+            },
+            {
+              "key": "password_confirmation",
+              "value": "12345679",
+              "type": "text",
+              "uuid": "332c9036-ed5c-41b7-b177-88b27e6d64f4"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/register",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "verify-otp",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "email",
+              "value": "talajoumani000@gmail.com",
+              "type": "text",
+              "uuid": "f486a49e-9c15-4212-a79f-9e66aa190aee"
+            },
+            {
+              "key": "otp_code",
+              "value": "981756",
+              "type": "text",
+              "uuid": "4b0bab10-5f7b-4c33-8f15-eac3512cadd6"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/verify-otp",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "verify-otp"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "log in patient",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "formdata",
+          "formdata": [
+            {
+              "key": "email",
+              "value": "talajoumani000@gmail.com",
+              "type": "text",
+              "uuid": "2cb6fbd8-bb6c-47ca-afd9-297cfe76798f"
+            },
+            {
+              "key": "password",
+              "value": "12345679",
+              "type": "text",
+              "uuid": "aacabcaf-4e71-4195-9ce2-7658552255ee"
+            }
+          ]
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/login",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

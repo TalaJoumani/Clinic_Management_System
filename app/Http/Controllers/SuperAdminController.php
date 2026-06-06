@@ -58,4 +58,18 @@ class SuperAdminController extends Controller
             'admins' => $admins
         ],200);
     }
+
+    public function getUsersByRole(Request $request){
+        $role=$request->query('role');
+        if(!$role) {
+            return response()->json([
+                'message'=>'Role query parameter is required'
+            ],400);
+        }
+        $result=$this->superAdminServices->getUsersByRole($role);
+        return response()->json([
+            'message'=>'Users retrieved successfully',
+            'data'=>$result,
+        ],200);
+    }
 }

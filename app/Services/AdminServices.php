@@ -31,6 +31,7 @@ class AdminServices
                 'day' => $data['day'],
                 'start_time' => $data['start_time'],
                 'end_time' => $data['end_time'],
+                'price' => $data['price'] ,
             ]);
 
             return $user->load('doctor.schedules');
@@ -95,6 +96,7 @@ class AdminServices
             'start_time'   => $data['start_time'] ?? $doctor->start_time,
             'end_time'     => $data['end_time'] ?? $doctor->end_time,
             'home_visit'   => $data['home_visit'] ?? $doctor->home_visit,
+            'price'        => $data['price'] ?? $doctor->price,
         ]);
 
         if(isset($data['first_name']) || isset($data['last_name']) || isset($data['email']) || isset($data['phone']) || isset($data['password']) ){

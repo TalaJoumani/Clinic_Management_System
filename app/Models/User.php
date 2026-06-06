@@ -33,8 +33,6 @@ class User extends Authenticatable
           
     ];
 
-
-
     public function doctor()
     {
         return $this->hasOne(Doctor::class, 'user_id');

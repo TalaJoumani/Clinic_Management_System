@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'fatora' => [
+        'api_key' => env('FATORA_API_KEY'),
+        'base_url' => env('FATORA_BASE_URL'),
+    ],
 ];

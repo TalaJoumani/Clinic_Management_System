@@ -34,6 +34,7 @@ class AddDoctorRequest extends FormRequest
             'end_time' => 'required|date_format:H:i|after:start_time',
             'home_visit' => 'required|boolean',
             'gender'=>'required|in:male,female',
+            'price' => 'required|numeric|min:0',
         ];
     }
 }

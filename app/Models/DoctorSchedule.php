@@ -11,6 +11,7 @@ class DoctorSchedule extends Model
         'day',
         'start_time',
         'end_time',
+        'price',
     ];
 
     public function doctor()

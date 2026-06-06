@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('day',['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','All'])->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
+            $table->decimal('price', 8, 2)->nullable();
             $table->timestamps();
         });
     }

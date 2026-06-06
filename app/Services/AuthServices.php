@@ -80,4 +80,60 @@ class AuthServices
         ], 200);
    }
   
+   public function sendPasswordResetOtp($email)
+   {
+       $user = User::where('email', $email)->first();
+
+       if (!$user) {
+           return response()->json([
+            'message' => 'User not found',
+            ], 404);
+       }
+         $otp= rand(100000, 999999);
+         $user->otp()->create([
+             'otp_code' => $otp,
+             'expires_at' => now()->addMinutes(10),
+         ]);
+         Mail::to($user->email)->send(new OtpMail($otp, 'Password Reset OTP'));
+         return response()->json([
+            'message' => 'OTP sent to email for password reset',
+        ], 200);
+   }
+
+   public function verifyResetOtp($email, $code)
+   {
+       $user = User::where('email', $email)->first();
+
+       if (!$user) {
+           return response()->json([
+            'message' => 'User not found',
+            ], 404);
+       }
+         $otpRecord = $user->otp()->where('otp_code', $code)->where('expires_at', '>', now())->first();
+         if (!$otpRecord) {
+            return response()->json([
+                'message' => 'Invalid or expired OTP',
+            ], 400);
+         }
+         $user->otp()->delete();
+         return response()->json([
+            'message' => 'OTP verified successfully. You can now reset your password.',
+        ], 200);
+   }
+   
+   public function resetPassword($email, $newPassword)
+   {
+       $user = User::where('email', $email)->first();
+
+       if (!$user) {
+           return response()->json([
+            'message' => 'User not found',
+            ], 404);
+       }
+       $user->password = Hash::make($newPassword);
+       $user->save();
+       return response()->json([
+        'message' => 'Password reset successful',
+    ], 200);
+   }
 }

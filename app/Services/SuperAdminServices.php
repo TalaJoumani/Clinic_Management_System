@@ -35,4 +35,15 @@ class SuperAdminServices
     {
         return User::where('role', 'admin')->get();
     }
+
+    public function getUsersByRole(string $role){
+        if(auth('sanctum')->user()->role !== 'super_admin') {
+            return [
+                'message'=>'Unauthorized,only super admin can access this resource'
+            ];
+        }
+        $result=User::where('role',$role)->with(['doctor'])->get();
+
+        return $result;
+    }
 }

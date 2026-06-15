@@ -68,7 +68,6 @@ class SuperAdminController extends Controller
         }
         $result=$this->superAdminServices->getUsersByRole($role);
         return response()->json([
-            'message'=>'Users retrieved successfully',
             'data'=>$result,
         ],200);
     }

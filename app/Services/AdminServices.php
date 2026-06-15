@@ -1,10 +1,11 @@
 <?php
 
 namespace App\Services;
-
+use App\Mail\DoctorWelcome;
 use App\Models\Doctor;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AdminServices
 {
@@ -33,6 +34,7 @@ class AdminServices
                 'end_time' => $data['end_time'],
                 'price' => $data['price'] ,
             ]);
+            Mail::to($user->email)->send(new DoctorWelcome($user, $data['password']));
 
             return $user->load('doctor.schedules');
                                      

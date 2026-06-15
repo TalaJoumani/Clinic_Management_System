@@ -50,6 +50,8 @@ class AppointmentReminder extends Mailable
      */
     public function attachments(): array
     {
-        return [];
+        return [
+            Attachment::fromPath(public_path('images/logo.jpg'))->as('logo.jpg')->withMime('image/jpeg'),
+        ];
     }
 }

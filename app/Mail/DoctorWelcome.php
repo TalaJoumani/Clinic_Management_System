@@ -10,21 +10,23 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class OtpMail extends Mailable
+class DoctorWelcome extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public $otp;
-    public $title;
+    public $user;
+    public $password;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($otp, $title)
+    public function __construct($user, $password)
     {
-        $this->otp = $otp;
-        $this->title = $title;
+        $this->user = $user;
+        $this->password = $password;
     }
+
+        
+    
 
     /**
      * Get the message envelope.
@@ -32,7 +34,7 @@ class OtpMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: $this->title,
+            subject: 'Welcome to Our Clinic - your account details',
         );
     }
 
@@ -42,7 +44,7 @@ class OtpMail extends Mailable
     public function content(): Content
     {
         return new Content(
-            view: 'emails.otp',
+            view: 'emails.doctor_welcome',
         );
     }
 
@@ -54,7 +56,9 @@ class OtpMail extends Mailable
     public function attachments(): array
     {
         return [
-            Attachment::fromPath(public_path('images/logo.jpg'))->as('logo.jpg')->withMime('image/jpeg'),
+            Attachment::fromPath(public_path('images/logo.jpg'))
+                ->as('logo.jpg')
+                ->withMime('images/jpeg'),
         ];
     }
 }

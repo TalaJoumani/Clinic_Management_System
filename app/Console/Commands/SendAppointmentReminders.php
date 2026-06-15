@@ -17,13 +17,16 @@ class SendAppointmentReminders extends Command
 
     public function handle()
     {
-        $tomorrow = now()->addDay()->format('Y-m-d');
-        
-        // تغيير اسم المتغير هنا إلى plural
-        $appointments = Appointment::whereDate('appointment_time', $tomorrow)
+        $now=now();
+        $start=$now;
+        $end = $now->addHours(24);
+        Log::info('current time:'.$now);
+        Log::info('Searching for appointments between: ' . $start . ' and ' . $end);
+        $appointments = Appointment::whereBetween('appointment_time', [$start->copy()->subMinutes(30), $end->copy()->addMinutes(30)])
             ->whereIn('status', ['confirmed'])
             ->with(['patient', 'doctor.user'])
             ->get();
+            Log::info('Found ' . $appointments->count() . ' appointments for tomorrow');
 
         if ($appointments->isEmpty()) {
             $this->info('No appointments for tomorrow');

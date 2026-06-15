@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Mail\OtpMail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Cache;
    
 class AuthServices 
 { 
@@ -116,6 +117,7 @@ class AuthServices
             ], 400);
          }
          $user->otp()->delete();
+         Cache::put('reset_allowed_'.$email, true, now()->addMinutes(10));
          return response()->json([
             'message' => 'OTP verified successfully. You can now reset your password.',
         ], 200);
@@ -125,13 +127,14 @@ class AuthServices
    {
        $user = User::where('email', $email)->first();
 
-       if (!$user) {
+       if (!$user || !Cache::has('reset_allowed_'.$email)) {
            return response()->json([
-            'message' => 'User not found',
+            'message' => 'User not found or OTP verification not completed',
             ], 404);
        }
        $user->password = Hash::make($newPassword);
        $user->save();
+       Cache::forget('reset_allowed_'.$email);
        return response()->json([
         'message' => 'Password reset successful',
     ], 200);

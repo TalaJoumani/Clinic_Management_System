@@ -18,14 +18,13 @@ Route::post('register', [AuthController::class, 'register']);
 Route::post('verify-otp', [AuthController::class, 'verifyOtp']);
 Route::post('login', [AuthController::class, 'login']);
 Route::post('forgotPassword', [AuthController::class, 'forgotPassword']);
-Route::post('resetPassword', [AuthController::class, 'resetPassword']);
 Route::post('verifyResetOtp', [AuthController::class, 'verifyResetOtp']);
+Route::post('resetPassword', [AuthController::class, 'resetPassword']);
 
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::get('getMyProfile', [userController::class, 'getMyProfile']);
-
+Route::get('getMyProfile', [userController::class, 'getMyProfile']);
 
     Route::post('addAdmin', [SuperAdminController::class, 'addAdmin']);
     Route::delete('deleteAdmin', [SuperAdminController::class, 'deleteAdmin']);
@@ -39,7 +38,9 @@ Route::middleware('auth:sanctum')->group(function () {
      //
     Route::get('getDoctorMonthlyCalendar', [AppointmentController::class, 'getDoctorMonthlyCalendar']);
     Route::post('addBooking', [AppointmentController::class, 'addBooking']);
-
+    Route::get('appointments/{id}/confirm', [AppointmentController::class, 'confirmAppointment']);
+    Route::get('appointments/{id}/cancel', [AppointmentController::class, 'cancelAppointment']);
+    
     Route::get('paymentSuccess', [PaymentController::class, 'paymentSuccess']);
     Route::get('paymentCancel', [PaymentController::class, 'paymentCancel']);
 

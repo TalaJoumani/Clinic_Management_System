@@ -42,6 +42,12 @@ class SuperAdminServices
                 'message'=>'Unauthorized,only super admin can access this resource'
             ];
         }
+        if(!in_array($role, ['admin', 'doctor'])) {
+            return [
+                'message'=>'Invalid role, only doctor and admin roles are allowed',
+            ];
+        }
+         $result=User::where('role',$role)->get();
         $result=User::where('role',$role)->with(['doctor'])->get();
 
         return $result;

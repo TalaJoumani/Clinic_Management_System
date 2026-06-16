@@ -8,62 +8,79 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\AppointmentReminder;
 use Kreait\Firebase\Messaging\CloudMessage;
-use Carbon\Carbon; // لإصلاح مشكلة الـ format في الوقت
+use Carbon\Carbon;
 
 class SendAppointmentReminders extends Command
 {
     protected $signature = 'app:send-appointment-reminders';
-    protected $description = 'Send appointment reminders to patients 24 hours before their appointment';
+    protected $description = 'Send informational emails and interactive Firebase notifications 24 hours before the appointment';
 
     public function handle()
     {
-        $now=now();
-        $start=$now;
-        $end = $now->addHours(24);
-        Log::info('current time:'.$now);
-        Log::info('Searching for appointments between: ' . $start . ' and ' . $end);
-        $appointments = Appointment::whereBetween('appointment_time', [$start->copy()->subMinutes(30), $end->copy()->addMinutes(30)])
-            ->whereIn('status', ['confirmed'])
+        $now = now();
+        $start = $now->copy()->addHours(24)->subMinutes(30);
+        $end = $now->copy()->addHours(24)->addMinutes(30);
+
+        Log::info('Reminder Cron Job Started at: ' . $now);
+        
+        $appointments = Appointment::whereBetween('appointment_time', [$start, $end])
+            ->where('status', 'confirmed') 
             ->with(['patient', 'doctor.user'])
             ->get();
-            Log::info('Found ' . $appointments->count() . ' appointments for tomorrow');
 
         if ($appointments->isEmpty()) {
-            $this->info('No appointments for tomorrow');
+            Log::info('No appointments found for tomorrow in this time slot.');
             return;
         }
 
-        // تغيير المتغير هنا إلى singular (appointment)
         foreach ($appointments as $appointment) {
-            Log::info('Appointment ID:'.$appointment->id.'|Doctor ID: '.$appointment->doctor_id);
-            Log::info('Doctor object: '.json_encode($appointment->doctor));
             $patient = $appointment->patient;
-        
             if ($patient && $patient->email) {
-                Mail::to($patient->email)->send(new AppointmentReminder($appointment));
+                try {
+                    Mail::to($patient->email)->send(new AppointmentReminder($appointment));
+                } catch (\Exception $e) {
+                    Log::error('Mail failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
+                }
             }
             
-            if ($patient && $patient->token) {
-                $this->sendFirebaseNotification($patient->token, $appointment);
+            if ($patient && $patient->user && $patient->user->fcm_token) {
+                $this->sendFirebaseNotification($patient->user->fcm_token, $appointment);
             }
         }
         
-        $this->info('Appointment reminders sent successfully: ' . $appointments->count());
+        $this->info('Reminders processed successfully.');
     }
 
-    private function sendFirebaseNotification($Token, $appointment) {
+    private function sendFirebaseNotification($token, $appointment) {
         try {
             $messaging = app('firebase.messaging');
+            $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
+            $formattedTime = Carbon::parse($appointment->appointment_time)->format('h:i A');
+
             $message = CloudMessage::fromArray([
-                'token' => $Token,
+                'token' => $token,
                 'notification' => [
-                    'title' => 'Appointment Reminder',
-                    'body' => 'You have an appointment with Dr. ' . $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name . ' at ' . Carbon::parse($appointment->appointment_time)->format('H:i A') . ' tomorrow.',
+                    'title' => 'Confirm Your Attendance 🔔',
+                    'body' => "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.",
                 ],
+                'data' => [
+                    'click_action'      => 'FLUTTER_NOTIFICATION_CLICK',
+                    'notification_type' => 'appointment_reminder',
+                    'appointment_id'    => (string) $appointment->id,
+                    'action_required'   => 'confirm_and_pay'
+                ],
+                'android' => [
+                    'notification' => [
+                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                        'importance'   => 'HIGH'
+                    ],
+                ]
             ]);
+
             $messaging->send($message);
+            Log::info('Firebase reminder sent for Appointment ID: ' . $appointment->id);
         } catch (\Exception $e) {
-            $this->error('Failed to send Firebase notification: ' . $e->getMessage());
+            Log::error('Firebase failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }
     }
 }

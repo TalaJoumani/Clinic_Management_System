@@ -30,6 +30,7 @@ class User extends Authenticatable
             'phone',
             'gender',
             'is_verified',
+            'fcm_token',
           
     ];
 

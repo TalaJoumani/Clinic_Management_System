@@ -15,30 +15,12 @@
             <p style="margin: 5px 0;"><strong>Time:</strong> {{ \Carbon\Carbon::parse($appointment->appointment_time)->format('l, j F Y - h:i A') }}</p>
         </div>
 
-        <p>Please confirm your attendance to finalize your booking.</p>
+        <!-- النص الجديد لتوجيه المريض للتطبيق -->
+        <p>Please open the <strong>Clinic App</strong> on your mobile device to confirm your attendance and complete the remaining payment to finalize your booking.</p>
 
-        <table border="0" cellpadding="0" cellspacing="0" style="margin-top: 20px;">
-            <tr>
-                <td align="center" style="border-radius: 5px;" bgcolor="#001f3f">
-                    <a href="{{ url('/appointment/confirm/' . $appointment->id) }}" 
-                       style="font-size: 14px; font-family: sans-serif; color: #ffffff; text-decoration: none; padding: 12px 20px; display: block; font-weight: bold;">
-                       Confirm Attendance
-                    </a>
-                </td>
-                
-                <td width="20">&nbsp;</td>
-                
-                <td align="center" style="border-radius: 5px;" bgcolor="#dc3545">
-                    <a href="{{ url('/appointment/cancel/' . $appointment->id) }}" 
-                       style="font-size: 14px; font-family: sans-serif; color: #ffffff; text-decoration: none; padding: 12px 20px; display: block; font-weight: bold;">
-                       Cancel Appointment
-                    </a>
-                </td>
-            </tr>
-        </table>
-
+        <!-- التنبيه المعدل ليتناسب مع الحجز من داخل التطبيق -->
         <p style="margin-top: 30px; font-size: 13px; color: #666;">
-            Note: If you do not confirm your attendance at least 6 hours before the appointment, it will be automatically cancelled.
+            <strong>Note:</strong> If you do not confirm your attendance through the app at least 6 hours before the appointment, it will be automatically cancelled.
         </p>
     </div>
 

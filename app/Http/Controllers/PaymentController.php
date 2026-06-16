@@ -38,4 +38,19 @@ class PaymentController extends Controller
             'message'=>'Payment cancelled from patient ',
         ]);
 }
+
+public function completeFinalPayment(Request $request) {
+    $appointmentId=$request->query('appointment_id');
+    if(!$appointmentId) {
+        return response()->json([
+            'message'=>'Appointment ID is required'
+        ],400);
+    }
+  
+    $result= $this->paymentServices->completeFinalPayment($appointmentId);
+    return response()->json([
+        'message'=>'Final payment completed and appointment marked as completed',
+        'data'=>$result,
+    ]);
+}
 }

@@ -38,11 +38,14 @@ Route::get('getMyProfile', [userController::class, 'getMyProfile']);
      //
     Route::get('getDoctorMonthlyCalendar', [AppointmentController::class, 'getDoctorMonthlyCalendar']);
     Route::post('addBooking', [AppointmentController::class, 'addBooking']);
-    Route::get('appointments/{id}/confirm', [AppointmentController::class, 'confirmAppointment']);
-    Route::get('appointments/{id}/cancel', [AppointmentController::class, 'cancelAppointment']);
+    Route::post('appointments/{id}/app-confirm', [AppointmentController::class, 'appConfirm']);
+    Route::post('appointments/{id}/app-cancel', [AppointmentController::class, 'appCancel']);
+    Route::post('updateFcmToken', [AppointmentController::class, 'updateFcmToken']);
+    
     
     Route::get('paymentSuccess', [PaymentController::class, 'paymentSuccess']);
     Route::get('paymentCancel', [PaymentController::class, 'paymentCancel']);
+    Route::get('completeFinalPayment', [PaymentController::class, 'completeFinalPayment']);
 
     Route::post('addLocation', [LocationController::class, 'addLocation']);
 });

@@ -1341,7 +1341,7 @@
           "formdata": []
         },
         "url": {
-          "raw": "http://127.0.0.1:8000/api/getDoctorMonthlyCalendar?doctor_id=1&date=2026-06-15",
+          "raw": "http://127.0.0.1:8000/api/getDoctorMonthlyCalendar?doctor_id=1&date=2026-06-16",
           "protocol": "http",
           "host": [
             "127",
@@ -1361,7 +1361,7 @@
             },
             {
               "key": "date",
-              "value": "2026-06-15"
+              "value": "2026-06-16"
             }
           ]
         }
@@ -1498,7 +1498,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "6|0ChI5nplQK6Q3f9WLBFtIUsXLPueP680S3qEmBcecc6f2285",
+              "value": "12|pZ5WLPPbY9JTd5CSpqX3nNPlwmX4BM8Wk7FuNW00cdaec162",
               "type": "string"
             }
           ]
@@ -1516,7 +1516,7 @@
           "formdata": []
         },
         "url": {
-          "raw": "http://127.0.0.1:8000/api/paymentCancel?appointment_id=47&amount_paid=5.00",
+          "raw": "http://127.0.0.1:8000/api/paymentCancel?appointment_id=31",
           "protocol": "http",
           "host": [
             "127",
@@ -1532,11 +1532,7 @@
           "query": [
             {
               "key": "appointment_id",
-              "value": "47"
-            },
-            {
-              "key": "amount_paid",
-              "value": "5.00"
+              "value": "31"
             }
           ]
         }
@@ -1551,7 +1547,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "{{auth_secret_04c1}}",
+              "value": "12|pZ5WLPPbY9JTd5CSpqX3nNPlwmX4BM8Wk7FuNW00cdaec162",
               "type": "string"
             }
           ]
@@ -1582,7 +1578,7 @@
               "key": "appointment_time",
               "type": "text",
               "uuid": "f09a61ff-fbca-4083-b8f6-59bd6bd2bed2",
-              "value": "2026-06-16 11:00"
+              "value": "2026-06-17 11:00"
             },
             {
               "key": "type",
@@ -1618,7 +1614,7 @@
           "bearer": [
             {
               "key": "token",
-              "value": "{{auth_secret_04c1}}",
+              "value": "12|pZ5WLPPbY9JTd5CSpqX3nNPlwmX4BM8Wk7FuNW00cdaec162",
               "type": "string"
             }
           ]
@@ -1632,7 +1628,7 @@
           }
         ],
         "url": {
-          "raw": "http://127.0.0.1:8000/api/paymentSuccess?appointment_id=28",
+          "raw": "http://127.0.0.1:8000/api/paymentSuccess?appointment_id=31",
           "protocol": "http",
           "host": [
             "127",
@@ -1648,7 +1644,7 @@
           "query": [
             {
               "key": "appointment_id",
-              "value": "28"
+              "value": "31"
             }
           ]
         }
@@ -1825,6 +1821,93 @@
               "key": "appointment_id",
               "value": "29"
             }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "complete Final Payment",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "12|pZ5WLPPbY9JTd5CSpqX3nNPlwmX4BM8Wk7FuNW00cdaec162",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/completeFinalPayment?appointment_id=31",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "completeFinalPayment"
+          ],
+          "query": [
+            {
+              "key": "appointment_id",
+              "value": "31",
+              "type": "text"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "confirm book after reminder",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "12|pZ5WLPPbY9JTd5CSpqX3nNPlwmX4BM8Wk7FuNW00cdaec162",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/appointments/31/app-confirm",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "appointments",
+            "31",
+            "app-confirm"
           ]
         }
       },

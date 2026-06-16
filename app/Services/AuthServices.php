@@ -72,6 +72,11 @@ class AuthServices
                 'message' => 'Account not verified. Please check your email for the OTP to verify your account.'
                 ], 403);
         }
+        if(isset($credentials['fcm_token']) && $credentials['fcm_token']!=null){
+            $user->update([
+                'fcm_token' => $credentials['fcm_token']
+            ]);
+        }
         
         $token = $user->createToken('auth_token')->plainTextToken;
         return response()->json([

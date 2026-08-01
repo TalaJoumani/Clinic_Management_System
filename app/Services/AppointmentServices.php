@@ -5,13 +5,14 @@ use App\Models\Appointment;
 use App\Models\Doctor;
 use App\Models\Location;
 use App\Models\Payment;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AppointmentServices {
   public function getDoctorMonthlyCalendar($doctorId, $date) 
-{  
+ {  
     $dayName = Carbon::parse($date)->format('l');
     $doctor = Doctor::with(['schedules' => function($query) use ($dayName) {
         $query->whereIn('day', [$dayName, 'All']);
@@ -58,8 +59,8 @@ class AppointmentServices {
     }
 
     return $slots;
-}
-public function addBooking($patientId, array $data) {
+ }
+ public function addBooking($patientId, array $data) {
     $user = auth('sanctum')->user();
     $appointmentTimeParsed = Carbon::parse($data['appointment_time']);
     $timeOnly = $appointmentTimeParsed->format('H:i:s');
@@ -79,11 +80,17 @@ public function addBooking($patientId, array $data) {
         return response()->json(['message' => 'this slot is already booked'], 400);
     }
 
-    $doctor = Doctor::findOrFail($data['doctor_id']);
+    $doctor = Doctor::where('user_id',$data['doctor_id'])->first();
+    if(!$doctor){
+        return response()->json([
+            'message'=>'doctor not found'
+        ]);
+    }
+    $realDoctor=$doctor->id;
     
     // 2. التحقق من دوام الدكتور (مع دعم 'All' في جدول الـ schedules)
     $isInsideWorkingHours = DB::table('doctor_schedules')
-        ->where('doctor_id', $data['doctor_id'])
+        ->where('doctor_id', $realDoctor)
         ->where(function($query) use ($dayName) {
             $query->where('day', $dayName)
                   ->orWhere('day', 'All');
@@ -115,7 +122,7 @@ public function addBooking($patientId, array $data) {
 
     // 4. حساب السعر
     $doctorSchedule = DB::table('doctor_schedules')
-        ->where('doctor_id', $data['doctor_id'])
+        ->where('doctor_id',$realDoctor)
         ->where(function($query) use ($dayName) {
             $query->where('day', $dayName)->orWhere('day', 'All');
         })

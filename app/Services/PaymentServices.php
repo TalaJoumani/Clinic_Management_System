@@ -2,7 +2,9 @@
 namespace App\Services;
 
 use App\Models\Appointment;
+use App\Models\Medical_records;
 use App\Models\Payment;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 class PaymentServices {
   public function paymentSuccess($appointmentId) {
@@ -87,8 +89,58 @@ class PaymentServices {
         $appointment->update([
             'status' => 'completed',                 
         ]);
+            Medical_records::create([
+                'patient_id'=>$appointment->patient_id,
+                'doctor_id'=>$appointment->doctor_id,
+                'appointment_id'=>$appointmentId
+            ]);
+        
+       // إرسال إشعار عبر الفايربيز للطبيب
+        try {
+            // جلب علاقة الطبيب مع جدول المستخدمين للحصول على fcm_token
+            $appointment->load('doctor.user'); 
+            
+            if ($appointment->doctor && $appointment->doctor->user && $appointment->doctor->user->fcm_token) {
+                $token = $appointment->doctor->user->fcm_token;
+                
+                // رسالة الإشعار
+                $messaging = app('firebase.messaging');
+                $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
+                
+                $message = CloudMessage::fromArray([
+                    'token' => $token,
+                    'notification' => [
+                        'title' => 'new appointment🔔',
+                        'body' => 'payment completed and create medical record for patient',
+                    ],
+                    'data' => [
+                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                        'notification_type' => 'payment_completed',
+                        'appointment_id' => (string) $appointment->id,
+                        'patient_id' => (string) $appointment->patient_id,
+                    ],
+                   /* 'android' => [
+                        'notification' => [
+                            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                            'importance' => 'HIGH',
+                        ],
+                    ],*/
+                ]);
+
+                $messaging->send($message);
+                $firebase='notification sent success:'.$token;}
+                else{
+                    $firebase='failed';
+                }
+                //\Illuminate\Support\Facades\Log::info('Firebase payment notification sent for Appointment ID: ' . $appointment->id);
+            
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Firebase notification failed: ' . $e->getMessage());
+        }
+        
          return [
             'message' => 'Final payment received. Remaining balance cleared and appointment completed.',
+            'fire'=>$firebase,
             'appointment' => $appointment,
             'payment' => $payment,
         ];

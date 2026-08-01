@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->text('fcm_token')->nullable()->after('password'); // إضافة عمود لتخزين FCM token، يمكن أن يكون فارغًا في البداية
-            $table->dropColumn('fcm_token'); // تعديل العمود ليكون nullable
             });
     }
 

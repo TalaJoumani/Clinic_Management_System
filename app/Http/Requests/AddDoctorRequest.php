@@ -28,13 +28,15 @@ class AddDoctorRequest extends FormRequest
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'phone' => 'required|string|max:20',
-            'specialization' => 'required|string|max:255',
+            'specialization' => 'required|string|in:Cardiology,Dermatology,Neurology,Pediatrics,Psychiatry,Radiology',
             'day' => 'required|in:Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,All',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'start_time' => 'required|date_format:H:i|after_or_equal:08:00|before_or_equal:22:00',
+            'end_time' => 'required|date_format:H:i|after:08:00|before_or_equal:22:00|after:start_time',
             'home_visit' => 'required|boolean',
             'gender'=>'required|in:male,female',
             'price' => 'required|numeric|min:0',
+            'profile_photo'=>'required|mimes:jpeg,png,jpg,gif',
+
         ];
     }
 }

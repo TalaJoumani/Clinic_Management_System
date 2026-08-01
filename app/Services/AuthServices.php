@@ -32,7 +32,7 @@ class AuthServices
            'expires_at' => now()->addMinutes(10),
        ]);
        Mail::to($user->email)->send(new OtpMail($otp, 'Email Verification OTP'));
-       return $user;
+       return $user->load('patient');
    }
 
    public function verifyOtp($email,$code)

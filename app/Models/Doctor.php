@@ -16,6 +16,7 @@ class Doctor extends Model
         'is_available',
         'home_visit',
         'admin_id',
+        'profile_photo',
     ];
 
     public function user()

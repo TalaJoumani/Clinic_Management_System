@@ -6,6 +6,7 @@ use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\userController;
@@ -48,4 +49,8 @@ Route::get('getMyProfile', [userController::class, 'getMyProfile']);
     Route::get('completeFinalPayment', [PaymentController::class, 'completeFinalPayment']);
 
     Route::post('addLocation', [LocationController::class, 'addLocation']);
+
+    Route::get('appointmentForDoctor/{doctorid}',[DoctorController::class,'getAppointmentForDoctor']);
+    Route::get('getMedicalRecord/{doctorid}',[DoctorController::class,'getMedicalRecord']);
+    Route::post('updateMedicalRecord/{appointment}',[DoctorController::class,'updateMedicalRecord']);
 });

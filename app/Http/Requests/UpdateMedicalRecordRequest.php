@@ -23,7 +23,8 @@ class UpdateMedicalRecordRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'diagnosis'    => 'nullable|string',
+            'appointment_id'=>'required|integer|exists:appointments,id',
+        'diagnosis'    => 'nullable|string',
         'prescription' => 'nullable|string',
         'tests'        =>'nullable|string',
         'images'       => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',

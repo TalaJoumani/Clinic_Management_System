@@ -15,22 +15,23 @@ class DoctorController extends Controller
         $this->doctorServices = $doctorServices;
     }
 
-    public function getAppointmentForDoctor($doctorId){
-        $appointment=$this->doctorServices->getAppointmentForDoctor($doctorId);
+    public function getAppointmentForDoctor(){
+        $appointment=$this->doctorServices->getAppointmentForDoctor();
         return response()->json([
             'data'=>$appointment,
         ]);
     }
 
-    public function getMedicalRecord($patientId){
+    public function getMedicalRecord(int $patientId){
         $data=$this->doctorServices->getMedicalRecord($patientId);
         return response()->json([
             'data'=>$data
         ]);
     }
 
-    public function updateMedicalRecord(UpdateMedicalRecordRequest $updateMedicalRecordRequest,$appointmentId){
-        $result=$this->doctorServices->updateMedicalRecord($updateMedicalRecordRequest->validated(),$appointmentId);
+    public function updateMedicalRecord(UpdateMedicalRecordRequest $updateMedicalRecordRequest){
+        //dd($updateMedicalRecordRequest->all());
+        $result=$this->doctorServices->updateMedicalRecord($updateMedicalRecordRequest->validated());
         return response()->json([
             'data'=>$result,
         ]);

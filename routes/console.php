@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('app:send-appointment-reminders')->everyThirtyMinutes();
 Schedule::command('app:cancel-unconfirmed-appointments')->hourly();
+Schedule::command('app:deactivate-expired-offers')->daily();

@@ -9,6 +9,7 @@ use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\userController;
 
 Route::get('/user', function (Request $request) {
@@ -36,6 +37,7 @@ Route::get('getMyProfile', [userController::class, 'getMyProfile']);
     Route::delete('deleteDoctor', [AdminController::class, 'deleteDoctor']);
     Route::get('getAllDoctors', [AdminController::class, 'getAllDoctors']);
     Route::put('updateDoctor', [AdminController::class, 'updateDoctor']);
+    Route::post('addOffer',[AdminController::class,'createOffer']);
      //
     Route::get('getDoctorMonthlyCalendar', [AppointmentController::class, 'getDoctorMonthlyCalendar']);
     Route::post('addBooking', [AppointmentController::class, 'addBooking']);
@@ -50,7 +52,15 @@ Route::get('getMyProfile', [userController::class, 'getMyProfile']);
 
     Route::post('addLocation', [LocationController::class, 'addLocation']);
 
-    Route::get('appointmentForDoctor/{doctorid}',[DoctorController::class,'getAppointmentForDoctor']);
-    Route::get('getMedicalRecord/{doctorid}',[DoctorController::class,'getMedicalRecord']);
-    Route::post('updateMedicalRecord/{appointment}',[DoctorController::class,'updateMedicalRecord']);
+    Route::get('appointmentForDoctor',[DoctorController::class,'getAppointmentForDoctor']);
+    Route::get('getMedicalRecord/{patientId}',[DoctorController::class,'getMedicalRecord']);
+    Route::post('updateMedicalRecord',[DoctorController::class,'updateMedicalRecord']);
+    
+    Route::get('getAllDoctorsForPatient',[PatientController::class,'getAllDoctors']);
+    Route::get('getSpcialization',[PatientController::class,'getSpcialization']);
+    Route::get('filterDoctor',[PatientController::class,'filterDoctor']);
+    Route::get('getMedicaleRecord',[PatientController::class,'getMedicaleRecord']);
+    Route::get('exportMedicalRecords',[PatientController::class,'exportMedicalRecords']);
+    Route::get('getAppointmentPatient',[PatientController::class,'getAppointmentPatient']);
+    Route::get('getActiveOffers',[PatientController::class,'getActiveOffers']);
 });

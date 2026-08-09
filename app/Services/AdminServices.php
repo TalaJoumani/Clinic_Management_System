@@ -5,6 +5,7 @@ use App\Mail\DoctorWelcome;
 use App\Models\Doctor;
 use App\Models\User;
 use App\Image\ImageUpload;
+use App\Models\Offer;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
@@ -55,7 +56,7 @@ class AdminServices
     }
 
 
-    public function deleteDoctor($doctorId)
+    public function deleteDoctor(int $doctorId)
     {
         $doctor = Doctor::where('user_id', $doctorId)->where('admin_id', auth('sanctum')->id())->first();
         if (!$doctor) {    
@@ -102,7 +103,7 @@ class AdminServices
         ], 200);
     }
 
-    public function updateDoctor($doctorId, array $data)
+    public function updateDoctor(int $doctorId, array $data)
     {
         $user= auth('sanctum')->id();
         $doctor = Doctor::where('id', $doctorId)->where('admin_id', $user)->first();
@@ -165,5 +166,18 @@ class AdminServices
             'message' => 'Doctor updated successfully',
             'doctor' => $doctor->load('user'),
         ], 200);
+    }
+
+    public function createOffer(array $data){
+             $user=auth('sanctum')->user();
+        return Offer::create([
+            'admin_id'=>$user->id,
+            'title'=>$data['title'],
+            'description'=>$data['description'],
+            'discount_percentage'=>$data['discount_percentage'],
+            'valid_from'=>$data['valid_from'],
+            'valid_until'=>$data['valid_until'],
+            'is_active'=>true,
+        ]);
     }
 }

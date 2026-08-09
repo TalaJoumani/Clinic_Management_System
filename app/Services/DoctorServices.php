@@ -6,6 +6,7 @@ use App\Models\Doctor;
 use App\Models\Medical_records;
 use App\Models\Patient;
 use App\Image\ImageUpload;
+use Illuminate\Support\Facades\Log;
 
 class DoctorServices{
     
@@ -14,7 +15,9 @@ class DoctorServices{
     $this->imageUpload=$imageUpload;
    }
 
-public function getAppointmentForDoctor($doctorId){
+public function getAppointmentForDoctor(){
+    $doctor=auth('sanctum')->user();
+    $doctorId=$doctor->id;
     $query=Appointment::with(['patient','location'])
     ->where('doctor_id',$doctorId)
     ->where('status','completed')
@@ -22,6 +25,8 @@ public function getAppointmentForDoctor($doctorId){
     ->orderBy('appointment_time','asc')->get();
     return $query;
 }
+
+
 public function getMedicalRecord(int $userId): array
 {
     // جلب المريض عن طريق user_id مش عن طريق id تبع جدول patients
@@ -61,63 +66,74 @@ $patient = Patient::with(['user' => function($q) { $q->select('id', 'first_name'
     ];
 }
 
-public function updateMedicalRecord(array $data, int $appointmentId)
+public function updateMedicalRecord(array $data)
 {
-    $user=auth('sanctum')->user();
-    $doctor=Doctor::where('user_id',$user->id)->first();
-    if(!$doctor){
+    $user = auth('sanctum')->user();
+    $doctor = Doctor::where('user_id', $user->id)->first();
+
+    if (!$doctor) {
         return [
-            'message'=>'this account not doctor',
+            'message' => 'this account not doctor',
         ];
     }
-    $doctorId=$doctor->id;
-    $latsetAppointment=Appointment::where('doctor_id',$doctorId)
-    ->latest('appointment_time')->first();
-    if(!$latsetAppointment || $latsetAppointment->id!==$appointmentId){
-        return [
-            'message'=>'this old appointment can not edite ',
-        ];
-    }
-    // 1. التحقق من أن الموعد يتبع لهذا الطبيب حصراً، وأنه ليس موعداً قديماً (حسب التاريخ أو الحالة)
+
+    $appointmentId = $data['appointment_id'];
+    Log::info('DEBUG UPDATE RECORD', [
+        'auth_user_id' => $user->id,
+        'appointment_id_sent' => $appointmentId,
+    ]);
+
+    // ⚠️ appointments.doctor_id فعلياً بيخزّن user_id (مش doctors.id)
+    // فلازم نقارن مع $user->id مش $doctor->id
     $appointment = Appointment::where('id', $appointmentId)
-        ->where('doctor_id', $doctorId)
+        ->where('doctor_id', $user->id)
         ->first();
 
     if (!$appointment) {
         return [
             'status' => 'error',
-            'message' => 'الموعد غير موجود، أو أنه لا يتبع لهذا الطبيب.'
+            'message' => 'this appointment not found or not to this doctor'
         ];
     }
 
-    // 2. جلب السجل الطبي المرتبط حصراً بهذا الموعد
+    $latsetAppointment = Appointment::where('doctor_id', $user->id)
+        ->where('patient_id', $appointment->patient_id)
+        ->where('appointment_time', '<=', now())
+         ->latest('updated_at')
+          ->first();       
+
+    if (!$latsetAppointment || $latsetAppointment->id != $appointmentId) {
+        return [
+            'message' => 'this old appointment can not edite',
+        ];
+    }
     $medicalRecord = Medical_records::where('appointment_id', $appointmentId)
-        ->where('doctor_id', $doctorId)
+        ->where('doctor_id', $user->id)  
         ->first();
 
     if (!$medicalRecord) {
         return [
             'status' => 'error',
-            'message' => 'this medical recoed not found for this appointment'
+            'message' => 'this medical record not found for this appointment'
         ];
     }
-    $imagePath=$medicalRecord->images;
-    if(isset($data['images']) && $data['images']->isValid()){
-        if($medicalRecord->images){
+
+    $imagePath = $medicalRecord->images;
+    if (isset($data['images']) && $data['images']->isValid()) {
+        if ($medicalRecord->images) {
             $this->imageUpload->delete($medicalRecord->images);
         }
-        $Path=$this->imageUpload->upload($data['images'],'patient-photo');
-        $imagePath=asset('storage/'.$Path);
+        $Path = $this->imageUpload->upload($data['images'], 'patient-photo');
+        $imagePath = asset('storage/' . $Path);
     }
 
-   $medicalRecord->update([
-        'diagnosis'    =>  $data['diagnosis'] ??$medicalRecord->diagnosis ,
-        'prescription' =>  $data['prescription'] ?? $medicalRecord->prescription,
-        'tests'        =>  $data['tests'] ??  $medicalRecord->tests,
-        'images'       =>  $imagePath?? $medicalRecord->images,
-        'notes'        =>  $data['notes'] ?? $medicalRecord->notes,
+    $medicalRecord->update([
+        'diagnosis'    => $data['diagnosis'] ?? $medicalRecord->diagnosis,
+        'prescription' => $data['prescription'] ?? $medicalRecord->prescription,
+        'tests'        => $data['tests'] ?? $medicalRecord->tests,
+        'images'       => $imagePath ?? $medicalRecord->images,
+        'notes'        => $data['notes'] ?? $medicalRecord->notes,
     ]);
-    $medicalRecord->save();
 
     return [
         'status' => 'success',
@@ -125,5 +141,4 @@ public function updateMedicalRecord(array $data, int $appointmentId)
         'data' => $medicalRecord
     ];
 }
-
 }

@@ -79,6 +79,9 @@ class User extends Authenticatable
         return $this->hasMany(Chat::class, 'sender_id');
     }
     
+    public function createsOffers(){
+        return $this->hasMany(Offer::class,'admin_id');
+    }
 
     /**
      * The attributes that should be hidden for serialization.

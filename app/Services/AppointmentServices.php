@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AppointmentServices {
-  public function getDoctorMonthlyCalendar($doctorId, $date) 
+  public function getDoctorMonthlyCalendar(int $doctorId,$date) 
  {  
     $dayName = Carbon::parse($date)->format('l');
     $doctor = Doctor::with(['schedules' => function($query) use ($dayName) {
@@ -60,7 +60,7 @@ class AppointmentServices {
 
     return $slots;
  }
- public function addBooking($patientId, array $data) {
+ public function addBooking(int $patientId, array $data) {
     $user = auth('sanctum')->user();
     $appointmentTimeParsed = Carbon::parse($data['appointment_time']);
     $timeOnly = $appointmentTimeParsed->format('H:i:s');

@@ -28,7 +28,7 @@ class AppointmentController extends Controller
         return $response;
 }
 
-   public function appConfirm($id) {
+   public function appConfirm(int $id) {
     $response = $this->appointmentServices->confirm($id);
         return response()->json([
         'status' => 'success',
@@ -37,7 +37,7 @@ class AppointmentController extends Controller
     ], 200);
 }
 
-public function appCancel($id) {
+public function appCancel(int $id) {
     $response = $this->appointmentServices->cancel($id);
     
     return response()->json([

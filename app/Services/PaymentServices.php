@@ -33,7 +33,7 @@ class PaymentServices {
         ];
     }
 
-  public function paymentCancel($appointmentId) {
+  public function paymentCancel(int $appointmentId) {
     $appointment = Appointment::findOrFail($appointmentId);
     $payment = Payment::where('appointment_id', $appointmentId)->firstOrFail();
     if ($appointment->status === 'cancelled') {
@@ -65,7 +65,7 @@ class PaymentServices {
     ];
 }
 
-  public function completeFinalPayment($appointmentId) {
+  public function completeFinalPayment(int $appointmentId) {
         $appointment = Appointment::findOrFail($appointmentId);
         $payment = Payment::where('appointment_id', $appointmentId)->firstOrFail();
         if ($payment->status === 'fully_paid' || $appointment->status === 'completed') {
@@ -119,12 +119,12 @@ class PaymentServices {
                         'appointment_id' => (string) $appointment->id,
                         'patient_id' => (string) $appointment->patient_id,
                     ],
-                   /* 'android' => [
+                  'android' => [
                         'notification' => [
                             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                             'importance' => 'HIGH',
                         ],
-                    ],*/
+                    ],
                 ]);
 
                 $messaging->send($message);

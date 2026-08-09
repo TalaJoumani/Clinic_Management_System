@@ -35,7 +35,7 @@ class AuthServices
        return $user->load('patient');
    }
 
-   public function verifyOtp($email,$code)
+   public function verifyOtp(string $email, string $code)
    {
        $user = User::where('email', $email)->first();
 
@@ -83,10 +83,11 @@ class AuthServices
             'message' => 'Login successful',
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'user'=>$user
         ], 200);
    }
   
-   public function sendPasswordResetOtp($email)
+   public function sendPasswordResetOtp(string $email)
    {
        $user = User::where('email', $email)->first();
 
@@ -106,7 +107,7 @@ class AuthServices
         ], 200);
    }
 
-   public function verifyResetOtp($email, $code)
+   public function verifyResetOtp(string $email, string $code)
    {
        $user = User::where('email', $email)->first();
 
@@ -128,7 +129,7 @@ class AuthServices
         ], 200);
    }
    
-   public function resetPassword($email, $newPassword)
+   public function resetPassword(string $email, string $newPassword)
    {
        $user = User::where('email', $email)->first();
 

@@ -13,5 +13,10 @@ class Offer extends Model
         'is_active',
         'valid_from',
         'valid_until',
+        'admin_id'
     ];
+
+    public function admin(){
+        return $this->belongsTo(User::class,'admin_id');
+    }
 }

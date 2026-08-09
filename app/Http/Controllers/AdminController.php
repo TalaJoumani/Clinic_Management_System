@@ -75,4 +75,23 @@ class AdminController extends Controller
         
         return $this->adminServices->updateDoctor($request->doctorId, $validatedData);
     }
+
+    public function createOffer(Request $request){
+          if(auth('sanctum')->user()->role !== 'admin'){
+            return response()->json([
+                'message' => 'This service is only for admins',
+            ],401);
+        }
+        $validate=$request->validate([
+            'title'=>'required|string',
+            'description'=>'required|string',
+            'discount_percentage'=>'required|numeric',
+            'valid_from'=>'required|date',
+            'valid_until'=>'required|date',
+        ]);
+        $offer=$this->adminServices->createOffer($validate);
+        return response()->json([
+            'message'=>$offer,
+        ]);
+    }
 }

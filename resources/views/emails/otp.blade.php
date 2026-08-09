@@ -1,7 +1,6 @@
 
 <div style="direction: rtl; text-align: right; font-family: sans-serif; padding: 20px; background-color: #ffffff; border: 1px solid #001f3f;">
     
-    <!-- إضافة اللوغو -->
     <div style="text-align: center; margin-bottom: 20px;">
         <img src="{{ $message->embed(public_path('images/logo.jpg')) }}" alt="Clinic Logo" style="width: 150px; height: auto;">
     </div>

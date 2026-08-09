@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('offers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('admin_id')->constrained('users')->onDelete('cascade');
             $table->string('title');
             $table->text('description');
             $table->decimal('discount_percentage', 5, 2);

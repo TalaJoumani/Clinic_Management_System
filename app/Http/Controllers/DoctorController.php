@@ -30,10 +30,14 @@ class DoctorController extends Controller
     }
 
     public function updateMedicalRecord(UpdateMedicalRecordRequest $updateMedicalRecordRequest){
-        //dd($updateMedicalRecordRequest->all());
         $result=$this->doctorServices->updateMedicalRecord($updateMedicalRecordRequest->validated());
         return response()->json([
             'data'=>$result,
         ]);
+    }
+
+    public function getPatientLocation(int $appointmentId){
+        $result=$this->doctorServices->getPatientLocation($appointmentId);
+        return $result;
     }
 }

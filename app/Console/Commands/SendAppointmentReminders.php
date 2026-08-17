@@ -51,7 +51,7 @@ class SendAppointmentReminders extends Command
         $this->info('Reminders processed successfully.');
     }
 
-    private function sendFirebaseNotification($token, $appointment) {
+    public function sendFirebaseNotification($token, $appointment) {
         try {
             $messaging = app('firebase.messaging');
             $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;

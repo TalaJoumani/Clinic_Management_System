@@ -80,6 +80,7 @@ class PaymentServices {
                 'message' => 'cannot complete final payment because the initial 50% deposit has not been paid yet. Please make the first payment before completing the final payment.'
             ], 400);
         }
+        $meetLink="https://meet.google.com/" . strtolower(\Illuminate\Support\Str::random(3) . '-' . \Illuminate\Support\Str::random(4) . '-' . \Illuminate\Support\Str::random(3)); 
         $payment->update([
             'amount_paid' => $payment->total_amount, 
             'remaining_amount' => 0,                
@@ -88,6 +89,7 @@ class PaymentServices {
 
         $appointment->update([
             'status' => 'completed',                 
+            'meet_link' => $meetLink,
         ]);
             Medical_records::create([
                 'patient_id'=>$appointment->patient_id,
@@ -132,7 +134,6 @@ class PaymentServices {
                 else{
                     $firebase='failed';
                 }
-                //\Illuminate\Support\Facades\Log::info('Firebase payment notification sent for Appointment ID: ' . $appointment->id);
             
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Firebase notification failed: ' . $e->getMessage());

@@ -71,4 +71,47 @@ class SuperAdminController extends Controller
             'data'=>$result,
         ],200);
     }
+
+    public function createItem(Request $request){
+        $data=$request->validate([
+            'name'=>'required|string|max:255',
+            'quantity'=>'required|integer|min:0',
+            'min_quantity'=>'required|integer|min:0',
+            'category'=>'required|string|max:255',
+        ]);
+        $item=$this->superAdminServices->createItem($data);
+        return response()->json([
+            'message'=>'Item created successfully',
+            'item'=>$item,
+        ],201);
+    }
+
+    public function addItem(Request $request,int $id){
+         if(auth('sanctum')->user()->role !== 'super_admin'){
+            return response()->json([
+                'message' => 'Unauthorized'
+            ],401);
+        }
+        $request->validate([
+            'quantity'=>'required|integer|min:1'
+        ]);
+        $result=$this->superAdminServices->addItem($id,$request->quantity);
+        return response()->json([
+            'message'=>'item quantity increased',
+            'item'=>$result,
+        ]);
+    }
+
+    public function filter(Request $request){
+        $request->validate([
+            'start_date_filter'=>'nullable|date',
+            'end_date_filter'=>'nullable|date|after_or_equal:start_date_filter',
+            'status'=>'nullable|string|in:pending_deposit','confirmed','completed','cancelled',
+            'doctor_id'=>'nullable|exists:doctors,id',
+        ]);
+        $result=$this->superAdminServices->filter($request->all());
+        return response()->json([
+            'message'=>$result,
+        ]);
+    }
 }

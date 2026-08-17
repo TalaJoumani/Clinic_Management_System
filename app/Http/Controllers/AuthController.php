@@ -85,4 +85,10 @@ class AuthController extends Controller
         $result = $this->authService->verifyResetOtp($request->email, $request->otp_code);
         return $result;
     }
+
+    public function logout(Request $request)
+    {
+        $result = $this->authService->logout($request);
+        return $result;
+    }
 }

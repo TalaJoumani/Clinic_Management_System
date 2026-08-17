@@ -6,6 +6,7 @@ use App\Models\Doctor;
 use App\Models\Medical_records;
 use App\Models\Patient;
 use App\Image\ImageUpload;
+use App\Models\Location;
 use Illuminate\Support\Facades\Log;
 
 class DoctorServices{
@@ -140,5 +141,38 @@ public function updateMedicalRecord(array $data)
         'message' => 'تم تحديث السجل الطبي للموعد بنجاح.',
         'data' => $medicalRecord
     ];
+}
+
+public function getPatientLocation(int $appointmentId){
+      $user = auth('sanctum')->user();
+    $doctor = Doctor::where('user_id', $user->id)->first();
+
+    if (!$doctor) {
+        return [
+            'message' => 'this account not doctor',
+        ];
+    }
+    $appointment=Appointment::with(['patient'])
+    ->where('id',$appointmentId)
+    ->where('doctor_id',$user->id)
+    ->first();
+      if (!$appointment) {
+        return [
+            'status' => 'error',
+            'message' => 'this appointment not found or not to this doctor'
+        ];
+    }
+    $patientUser=$appointment->patient;
+    $location=$patientUser?Location::where('user_id',$patientUser->id)->first():null;
+    if(!$location){
+        return response()->json([
+            'message'=>'Location not found for this patient',
+        ],404);
+    }
+    return response()->json([
+        'patient_name'=>$patientUser->first_name??'unknown',
+        'location'=>$location,
+    ]);
+
 }
 }

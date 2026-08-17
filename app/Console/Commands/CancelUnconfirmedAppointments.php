@@ -54,7 +54,7 @@ class CancelUnconfirmedAppointments extends Command
     }
 
 
-    private function sendCancellationNotification($token, $appointment) {
+    public function sendCancellationNotification($token, $appointment) {
         try {
             $messaging = app('firebase.messaging');
                         $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;

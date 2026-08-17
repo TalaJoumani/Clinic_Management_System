@@ -94,4 +94,30 @@ class AdminController extends Controller
             'message'=>$offer,
         ]);
     }
+
+    public function getItems(){
+        if(auth('sanctum')->user()->role !== 'admin' && auth('sanctum')->user()->role !== 'super_admin'){
+            return response()->json([
+                'message' => 'This service is only for admins',
+            ],401);
+        }
+        $items=$this->adminServices->getItems();
+        return response()->json([
+            'message'=>'Items retrieved successfully',
+            'items'=>$items,
+        ],200);
+    }
+
+    public function useItem(int $id){
+        if(auth('sanctum')->user()->role !== 'admin'){
+            return response()->json([
+                'message' => 'This service is only for  admins',
+            ],401);
+        }
+        $item=$this->adminServices->useItem($id);
+        return response()->json([
+            'message'=>'Item used successfully',
+            'item'=>$item,
+        ],200);
+    }
 }

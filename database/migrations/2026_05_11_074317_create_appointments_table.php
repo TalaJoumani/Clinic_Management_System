@@ -19,6 +19,7 @@ return new class extends Migration
             $table->enum('type',['home','clinic','online']);
             $table->dateTime('appointment_time');
             $table->enum('status',['pending_deposit','confirmed','completed','cancelled'])->default('pending_deposit');
+            $table->string('meet_link')->nullable();
             $table->timestamps();
         });
     }

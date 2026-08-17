@@ -1,5 +1,6 @@
 <?php 
 namespace App\Services; 
+use Illuminate\Http\Request;
 
 use App\Models\User;
 use App\Mail\OtpMail;
@@ -145,4 +146,14 @@ class AuthServices
         'message' => 'Password reset successful',
     ], 200);
    }
+
+    public function logout(Request $request)
+    {
+        if($request->user() && $request->user()->currentAccessToken()) {
+            $request->user()->currentAccessToken()->delete();
+            return response()->json([
+                'message' => 'Logout successful',
+            ], 200);
+        }
+    }
 }

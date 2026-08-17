@@ -5,9 +5,14 @@ use App\Mail\DoctorWelcome;
 use App\Models\Doctor;
 use App\Models\User;
 use App\Image\ImageUpload;
+use App\Models\Inventory_logs;
 use App\Models\Offer;
+use App\Models\Item;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Kreait\Firebase\Messaging\CloudMessage;
 
 class AdminServices
 {
@@ -180,4 +185,72 @@ class AdminServices
             'is_active'=>true,
         ]);
     }
-}
+
+    public function getItems(){
+        $items=Item::orderBy('id','desc')->get();
+        return $items;
+    }
+
+    public function useItem(int $itemId){
+        return DB::transaction(function ()use ($itemId){
+            $item=Item::find($itemId);
+            if(!$item){
+                return [
+                    'message'=>'Item not found',
+                ];
+            }
+            if($item->quantity>=1){
+              $item->decrement('quantity',1);
+              Inventory_logs::create([
+                'item_id'=>$item->id,
+                'type'=>'removal',
+                'quantity_changed'=>1,
+              ]);
+              if($item->quantity<=$item->min_quantity){
+                                $this->sendLowStockNotification($item);
+              }
+              return $item->fresh();
+            }
+        });
+           
+    }
+
+        /**
+         * Handle low stock notification for an item.
+         * Currently logs a warning; replace with email/notification as needed.
+         */
+        public function sendLowStockNotification(Item $item)
+        {
+            try{
+                $superAdmin=User::where('role','super_admin')->first();
+                if($superAdmin && $superAdmin->fcm_token){
+                    $token=$superAdmin->fcm_token;
+                    $messaging = app('firebase.messaging');
+                    $message = CloudMessage::fromArray([
+                        'token'=>$token,
+                        'notification'=>[
+                            'title'=>'Low Stock Alert⚠️',
+                             'body' => "The item '{$item->name}' has reached its minimum quantity. Current quantity: {$item->quantity}",
+                ],
+                'data' => [
+                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                    'notification_type' => 'low_stock',
+                    'item_id' => (string) $item->id,
+                ],
+                'android' => [
+                    'notification' => [
+                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                        'importance' => 'HIGH',
+                    ]
+                ]
+            ]);
+
+            // 3. إرسال الإشعار
+            $messaging->send($message);
+        }
+    } catch (\Exception $e) {
+        // في حال فشل الإشعار لأي سبب، لا نوقف عملية الخصم بل نتجاهل خطأ الإشعار أو نسجله
+        Log::error('Failed to send low stock notification: ' . $e->getMessage());
+    }
+ }
+}   

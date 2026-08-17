@@ -32,6 +32,20 @@
             font-size: 16px;
             line-height: 1.5;
         }
+        .appointment-box {
+            background-color: #f9f9f9;
+            border: 1px solid #e1e4e8;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: left;
+            direction: ltr;
+        }
+        .appointment-box p {
+            margin: 5px 0;
+            color: #333333;
+            font-size: 15px;
+        }
         .btn {
             display: inline-block;
             margin-top: 20px;
@@ -55,12 +69,20 @@
 <body>
 
     <div class="container">
-        <img src="{{ $message->embed(public_path('images/logo.jpg')) }}" alt="Clinic Logo" style="width: 150px; height: auto;">
+        <!-- شعار العيادة المضمن -->
+        <img src="{{ $message->embed(public_path('images/logo.jpg')) }}" alt="Clinic Logo" style="width: 150px; height: auto;" class="logo">
 
         <h1>Appointment Confirmed!</h1>
         
         <p>Dear Patient,</p>
         <p>Your appointment has been successfully confirmed following the completion of your payment.</p>
+
+        <!-- صندوق تفاصيل الموعد (التاريخ والوقت) -->
+        <div class="appointment-box">
+            <p><strong>Appointment Details:</strong></p>
+            <p><strong>Time:</strong> {{ $appointment->appointment_time }}</p>
+        </div>
+
         <p>You can join the online consultation meeting via the link below:</p>
 
         <a href="{{ $link }}" class="btn" target="_blank">Join Google Meet</a>

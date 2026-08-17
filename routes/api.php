@@ -36,7 +36,8 @@ Route::get('getMyProfile', [userController::class, 'getMyProfile']);
     Route::post('createItem', [SuperAdminController::class, 'createItem']);
     Route::post('addItem/{id}',[SuperAdminController::class,'addItem']);
     Route::get('filter',[SuperAdminController::class,'filter']);
-
+    Route::get('getMonthlyFinancialReport',[SuperAdminController::class,'getMonthlyFinancialReport']);
+    Route::get('getPeakTimesAndTopDoctor',[SuperAdminController::class,'getPeakTimesAndTopDoctor']);
 
     Route::post('addDoctor', [AdminController::class, 'addDoctor']);
     Route::delete('deleteDoctor', [AdminController::class, 'deleteDoctor']);

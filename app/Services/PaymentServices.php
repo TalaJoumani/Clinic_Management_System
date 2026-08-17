@@ -1,9 +1,10 @@
 <?php
 namespace App\Services;
-
+use App\Mail\meetLink;
 use App\Models\Appointment;
 use App\Models\Medical_records;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Mail;
 use Kreait\Firebase\Messaging\CloudMessage;
 
 class PaymentServices {
@@ -80,7 +81,11 @@ class PaymentServices {
                 'message' => 'cannot complete final payment because the initial 50% deposit has not been paid yet. Please make the first payment before completing the final payment.'
             ], 400);
         }
-        $meetLink="https://meet.google.com/" . strtolower(\Illuminate\Support\Str::random(3) . '-' . \Illuminate\Support\Str::random(4) . '-' . \Illuminate\Support\Str::random(3)); 
+        $meetLink=null;
+        if($appointment->type === 'online') {
+            $meetLink = "https://meet.google.com/" . strtolower(\Illuminate\Support\Str::random(3) . '-' . \Illuminate\Support\Str::random(4) . '-' . \Illuminate\Support\Str::random(3));
+            Mail::to($appointment->patient->email)->send( new meetLink ($meetLink, $appointment));
+        }
         $payment->update([
             'amount_paid' => $payment->total_amount, 
             'remaining_amount' => 0,                

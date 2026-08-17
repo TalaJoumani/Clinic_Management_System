@@ -106,12 +106,37 @@ class SuperAdminController extends Controller
         $request->validate([
             'start_date_filter'=>'nullable|date',
             'end_date_filter'=>'nullable|date|after_or_equal:start_date_filter',
-            'status'=>'nullable|string|in:pending_deposit','confirmed','completed','cancelled',
-            'doctor_id'=>'nullable|exists:doctors,id',
+             'type' => 'nullable|string|in:clinic,online,home',
+            'doctor_id' => 'nullable|exists:doctors,user_id',
         ]);
         $result=$this->superAdminServices->filter($request->all());
         return response()->json([
             'message'=>$result,
         ]);
     }
+
+    public function getMonthlyFinancialReport()
+    {
+        $report = $this->superAdminServices->getMonthlyFinancialReport();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Monthly financial report retrieved successfully by month',
+            'data' => $report
+        ], 200);
+    }
+
+
+    public function getPeakTimesAndTopDoctor()
+    {
+        $analytics = $this->superAdminServices->getPeakTimesAndTopDoctor();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Analytics report retrieved successfully',
+            'data' => $analytics
+        ], 200);
+    }
+
 }
+

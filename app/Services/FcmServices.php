@@ -5,7 +5,7 @@ namespace App\Services;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 
-class FcmService
+class FcmServices
 {
     /**
      * تابع عام لإرسال إشعار فايربيز باستخدام الـ v1 API الافتراضية

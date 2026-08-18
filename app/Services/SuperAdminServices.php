@@ -237,6 +237,85 @@ public function getMonthlyFinancialReport()
     }
 
 
+    public function getAllDoctors()
+{
+    if (auth('sanctum')->user()->role !== 'super_admin') {
+        return [
+            'message' => 'Unauthorized, only super admin can access this resource'
+        ];
+    }
+
+    $doctors = Doctor::with(['user', 'schedules'])->get();
+
+    return $doctors->map(function ($doctor) {
+        return [
+            'doctor_id' => $doctor->id,
+            'user_id' => $doctor->user_id,
+            'first_name' => $doctor->user?->first_name,
+            'last_name' => $doctor->user?->last_name,
+            'email' => $doctor->user?->email,
+            'phone' => $doctor->user?->phone,
+            'birth' => $doctor->user?->birth,
+            'gender' => $doctor->user?->gender,
+            'specialization' => $doctor->specialization,
+            'home_visit' => $doctor->home_visit,
+            'profile_photo' => $doctor->profile_photo ? asset('storage/' . $doctor->profile_photo) : null,
+            'admin_id' => $doctor->admin_id,
+            'schedules' => $doctor->schedules->map(function ($schedule) {
+                return [
+                    'day' => $schedule->day,
+                    'start_time' => $schedule->start_time,
+                    'end_time' => $schedule->end_time,
+                    'price' => $schedule->price,
+                ];
+            }),
+        ];
+    });
+}
+
+public function getAppointmentsCount()
+{
+    if (auth('sanctum')->user()->role !== 'super_admin') {
+        return [
+            'message' => 'Unauthorized, only super admin can access this resource'
+        ];
+    }
+
+    $counts = Appointment::query()
+        ->select('status', DB::raw('COUNT(*) as total'))
+        ->groupBy('status')
+        ->pluck('total', 'status');
+
+    return [
+        'pending_deposit' => $counts['pending_deposit'] ?? 0,
+        'confirmed'        => $counts['confirmed'] ?? 0,
+        'completed'        => $counts['completed'] ?? 0,
+        'cancelled'        => $counts['cancelled'] ?? 0,
+    ];
+}
+
+public function getAllItems()
+{
+    if (auth('sanctum')->user()->role !== 'super_admin') {
+        return [
+            'message' => 'Unauthorized, only super admin can access this resource'
+        ];
+    }
+
+    return Item::query()->latest()->get()->map(function ($item) {
+        return [
+            'id' => $item->id,
+            'name' => $item->name,
+            'category' => $item->category,
+            'quantity' => $item->quantity,
+            'min_quantity' => $item->min_quantity,
+            'is_low_stock' => $item->quantity <= $item->min_quantity,
+            'created_at' => $item->created_at,
+            'updated_at' => $item->updated_at,
+        ];
+    });
+}
+
 }
 
             

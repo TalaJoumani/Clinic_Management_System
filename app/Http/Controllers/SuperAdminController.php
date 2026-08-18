@@ -138,5 +138,26 @@ class SuperAdminController extends Controller
         ], 200);
     }
 
+    public function getAllDoctors(){
+        $result=$this->superAdminServices->getAllDoctors();
+        return response()->json([
+            'message'=>$result,
+        ]);
+    }
+
+    public function getAppointmentsCount(){
+        $result=$this->superAdminServices->getAppointmentsCount();
+        return response()->json([
+            'message'=>$result,
+        ]);
+    }
+
+    public function getAllItems(){
+        $result=$this->superAdminServices->getAllItems();
+        return response()->json([
+            'message'=>$result,
+        ]);
+    }
+
 }
 

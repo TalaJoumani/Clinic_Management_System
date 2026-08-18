@@ -718,6 +718,123 @@
       "response": []
     },
     {
+      "name": "get All Doctors for super Admin",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "25|az33BgWKbDgYCNuDDbwoSirA1L0sulEcwbv7gX8z0b6ba436",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/getAllDoctorsDetails",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "getAllDoctorsDetails"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get Appointments Count",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "25|az33BgWKbDgYCNuDDbwoSirA1L0sulEcwbv7gX8z0b6ba436",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/getAppointmentsCount",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "getAppointmentsCount"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "get All Items",
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "25|az33BgWKbDgYCNuDDbwoSirA1L0sulEcwbv7gX8z0b6ba436",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/getAllItems",
+          "protocol": "http",
+          "host": [
+            "127",
+            "0",
+            "0",
+            "1"
+          ],
+          "port": "8000",
+          "path": [
+            "api",
+            "getAllItems"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
       "name": "log in admin 2",
       "request": {
         "method": "POST",

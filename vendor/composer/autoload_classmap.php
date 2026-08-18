@@ -7,6 +7,7 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'App\\Console\\Commands\\CancelUnconfirmedAppointments' => $baseDir . '/app/Console/Commands/CancelUnconfirmedAppointments.php',
+    'App\\Console\\Commands\\DeactivateExpiredOffers' => $baseDir . '/app/Console/Commands/DeactivateExpiredOffers.php',
     'App\\Console\\Commands\\SendAppointmentReminders' => $baseDir . '/app/Console/Commands/SendAppointmentReminders.php',
     'App\\Http\\Controllers\\AdminController' => $baseDir . '/app/Http/Controllers/AdminController.php',
     'App\\Http\\Controllers\\AppointmentController' => $baseDir . '/app/Http/Controllers/AppointmentController.php',
@@ -36,9 +37,12 @@ return array(
     'App\\Http\\Requests\\RegisterRequest' => $baseDir . '/app/Http/Requests/RegisterRequest.php',
     'App\\Http\\Requests\\UpdateMedicalRecordRequest' => $baseDir . '/app/Http/Requests/UpdateMedicalRecordRequest.php',
     'App\\Image\\ImageUpload' => $baseDir . '/app/Image/ImageUpload.php',
+    'App\\Mail\\AdminWelcome' => $baseDir . '/app/Mail/AdminWelcome.php',
+    'App\\Mail\\AppointmentConfirmedLink' => $baseDir . '/app/Mail/AppointmentConfirmedLink.php',
     'App\\Mail\\AppointmentReminder' => $baseDir . '/app/Mail/AppointmentReminder.php',
     'App\\Mail\\DoctorWelcome' => $baseDir . '/app/Mail/DoctorWelcome.php',
     'App\\Mail\\OtpMail' => $baseDir . '/app/Mail/OtpMail.php',
+    'App\\Mail\\meetLink' => $baseDir . '/app/Mail/meetLink.php',
     'App\\Models\\Appointment' => $baseDir . '/app/Models/Appointment.php',
     'App\\Models\\Chat' => $baseDir . '/app/Models/Chat.php',
     'App\\Models\\Consultation' => $baseDir . '/app/Models/Consultation.php',
@@ -59,6 +63,7 @@ return array(
     'App\\Services\\AuthServices' => $baseDir . '/app/Services/AuthServices.php',
     'App\\Services\\DoctorServices' => $baseDir . '/app/Services/DoctorServices.php',
     'App\\Services\\MedicalRecordsServices' => $baseDir . '/app/Services/MedicalRecordsServices.php',
+    'App\\Services\\OfferServices' => $baseDir . '/app/Services/OfferServices.php',
     'App\\Services\\PatientServices' => $baseDir . '/app/Services/PatientServices.php',
     'App\\Services\\PaymentServices' => $baseDir . '/app/Services/PaymentServices.php',
     'App\\Services\\SuperAdminServices' => $baseDir . '/app/Services/SuperAdminServices.php',

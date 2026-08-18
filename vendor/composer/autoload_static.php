@@ -853,6 +853,7 @@ class ComposerStaticInit53b5d56b3b7e3cbac1713e68c8850f6c
 
     public static $classMap = array (
         'App\\Console\\Commands\\CancelUnconfirmedAppointments' => __DIR__ . '/../..' . '/app/Console/Commands/CancelUnconfirmedAppointments.php',
+        'App\\Console\\Commands\\DeactivateExpiredOffers' => __DIR__ . '/../..' . '/app/Console/Commands/DeactivateExpiredOffers.php',
         'App\\Console\\Commands\\SendAppointmentReminders' => __DIR__ . '/../..' . '/app/Console/Commands/SendAppointmentReminders.php',
         'App\\Http\\Controllers\\AdminController' => __DIR__ . '/../..' . '/app/Http/Controllers/AdminController.php',
         'App\\Http\\Controllers\\AppointmentController' => __DIR__ . '/../..' . '/app/Http/Controllers/AppointmentController.php',
@@ -882,9 +883,12 @@ class ComposerStaticInit53b5d56b3b7e3cbac1713e68c8850f6c
         'App\\Http\\Requests\\RegisterRequest' => __DIR__ . '/../..' . '/app/Http/Requests/RegisterRequest.php',
         'App\\Http\\Requests\\UpdateMedicalRecordRequest' => __DIR__ . '/../..' . '/app/Http/Requests/UpdateMedicalRecordRequest.php',
         'App\\Image\\ImageUpload' => __DIR__ . '/../..' . '/app/Image/ImageUpload.php',
+        'App\\Mail\\AdminWelcome' => __DIR__ . '/../..' . '/app/Mail/AdminWelcome.php',
+        'App\\Mail\\AppointmentConfirmedLink' => __DIR__ . '/../..' . '/app/Mail/AppointmentConfirmedLink.php',
         'App\\Mail\\AppointmentReminder' => __DIR__ . '/../..' . '/app/Mail/AppointmentReminder.php',
         'App\\Mail\\DoctorWelcome' => __DIR__ . '/../..' . '/app/Mail/DoctorWelcome.php',
         'App\\Mail\\OtpMail' => __DIR__ . '/../..' . '/app/Mail/OtpMail.php',
+        'App\\Mail\\meetLink' => __DIR__ . '/../..' . '/app/Mail/meetLink.php',
         'App\\Models\\Appointment' => __DIR__ . '/../..' . '/app/Models/Appointment.php',
         'App\\Models\\Chat' => __DIR__ . '/../..' . '/app/Models/Chat.php',
         'App\\Models\\Consultation' => __DIR__ . '/../..' . '/app/Models/Consultation.php',
@@ -905,6 +909,7 @@ class ComposerStaticInit53b5d56b3b7e3cbac1713e68c8850f6c
         'App\\Services\\AuthServices' => __DIR__ . '/../..' . '/app/Services/AuthServices.php',
         'App\\Services\\DoctorServices' => __DIR__ . '/../..' . '/app/Services/DoctorServices.php',
         'App\\Services\\MedicalRecordsServices' => __DIR__ . '/../..' . '/app/Services/MedicalRecordsServices.php',
+        'App\\Services\\OfferServices' => __DIR__ . '/../..' . '/app/Services/OfferServices.php',
         'App\\Services\\PatientServices' => __DIR__ . '/../..' . '/app/Services/PatientServices.php',
         'App\\Services\\PaymentServices' => __DIR__ . '/../..' . '/app/Services/PaymentServices.php',
         'App\\Services\\SuperAdminServices' => __DIR__ . '/../..' . '/app/Services/SuperAdminServices.php',

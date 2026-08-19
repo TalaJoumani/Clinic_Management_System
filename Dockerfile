@@ -38,8 +38,7 @@ php artisan config:clear\n\
 echo ">>> Running migrations"\n\
 php artisan migrate --force || echo ">>> MIGRATION FAILED, continuing anyway"\n\
 echo ">>> Starting Apache"\n\
-exec apache2-foreground\n\
-' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+exec apache2-foreground\n\' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
 
 EXPOSE 8080
 

@@ -26,5 +26,18 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction
  
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
  
-EXPOSE 80
-CMD php artisan migrate --force && apache2-foreground
+# سكربت بيضبط بورت Apache وقت التشغيل (مش وقت البناء)
+# لأنه Railway بيحدد $PORT ديناميكياً كل مرة بيشتغل فيها الكونتينر
+RUN echo '#!/bin/bash\n\
+set -e\n\
+PORT="${PORT:-80}"\n\
+sed -i "s/Listen 80/Listen ${PORT}/g" /etc/apache2/ports.conf\n\
+sed -i "s/:80>/:${PORT}>/g" /etc/apache2/sites-available/000-default.conf\n\
+php artisan config:clear\n\
+php artisan migrate --force\n\
+exec apache2-foreground\n\
+' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+ 
+EXPOSE 8080
+ 
+CMD ["/usr/local/bin/start.sh"]

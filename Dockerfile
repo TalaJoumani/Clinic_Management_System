@@ -1,5 +1,7 @@
 FROM php:8.2-apache
-RUN a2dismod mpm_event && a2enmod mpm_prefork
+RUN a2enmod rewrite
+RUN a2dismod mpm_event || true
+RUN a2enmod mpm_prefork || true 
 # تثبيت الحزم المطلوبة
 RUN apt-get update && apt-get install -y \
     libpng-dev libonig-dev libxml2-dev zip unzip libzip-dev \

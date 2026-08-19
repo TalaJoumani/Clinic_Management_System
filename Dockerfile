@@ -5,18 +5,18 @@ RUN apt-get update && apt-get install -y \
     libpng-dev libonig-dev libxml2-dev zip unzip libzip-dev \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# تعطيل كل MPM modules الموجودة، وتفعيل mpm_prefork فقط، بشكل قطعي
+# تفعيل الـ Rewrite (هاد لازم يجي قبل تصليح الـ MPM)
+RUN a2enmod rewrite
+
+# تصليح الـ MPM - هاد لازم يكون آخر شي يلمس apache modules
 RUN rm -f /etc/apache2/mods-enabled/mpm_event.load \
            /etc/apache2/mods-enabled/mpm_event.conf \
            /etc/apache2/mods-enabled/mpm_worker.load \
            /etc/apache2/mods-enabled/mpm_worker.conf \
            /etc/apache2/mods-enabled/mpm_prefork.load \
-           /etc/apache2/mods-enabled/mpm_prefork.conf
-
-RUN ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
+           /etc/apache2/mods-enabled/mpm_prefork.conf \
+    && ln -s /etc/apache2/mods-available/mpm_prefork.load /etc/apache2/mods-enabled/mpm_prefork.load \
     && ln -s /etc/apache2/mods-available/mpm_prefork.conf /etc/apache2/mods-enabled/mpm_prefork.conf
-
-RUN a2enmod rewrite
 
 # ضبط مسار الموقع
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public

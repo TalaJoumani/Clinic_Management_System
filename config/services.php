@@ -39,4 +39,10 @@ return [
         'api_key' => env('FATORA_API_KEY'),
         'base_url' => env('FATORA_BASE_URL'),
     ],
+
+    'gmail' => [
+    'client_id'     => env('GMAIL_CLIENT_ID'),
+    'client_secret' => env('GMAIL_CLIENT_SECRET'),
+    'refresh_token' => env('GMAIL_REFRESH_TOKEN'),
+],
 ];

@@ -97,6 +97,10 @@ return [
             'retry_after' => 60,
         ],
 
+        'gmail' => [
+    'transport' => 'gmail',
+],
+
     ],
 
     /*

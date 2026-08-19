@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Item;
 use App\Services\AdminServices;
+use App\Services\SuperAdminServices;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Illuminate\Http\Request;
@@ -21,8 +22,9 @@ class NotificationController extends Controller
 public function generalTestNotification(Request $request)
 {
     $request->validate([
-        'type' => 'required|string|in:reminder,cancellation,payment,low_stock',
+        'type' => 'required|string|in:reminder,cancellation,payment,low_stock,restock',
         'id'   => 'required|integer',
+        'addedQuantity' => 'required_if:type,restock|integer|min:1',
     ]);
 
     try {
@@ -60,6 +62,13 @@ public function generalTestNotification(Request $request)
                 $item = \App\Models\Item::findOrFail($id);
                 $adminService = app(AdminServices::class);
                 $adminService->sendLowStockNotification($item);
+                break;
+
+                case 'restock':
+                $item = \App\Models\Item::findOrFail($id);
+                $superAdminService = app(SuperAdminServices::class);
+                $addedQuantity = $request->integer('addedQuantity');
+                $superAdminService->sendAddNotification($item, $addedQuantity);
                 break;
         }
 

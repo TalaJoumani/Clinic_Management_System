@@ -1,14 +1,14 @@
 FROM php:8.2-apache
-RUN a2enmod rewrite
-RUN a2dismod mpm_event || true
-RUN a2enmod mpm_prefork || true 
+
 # تثبيت الحزم المطلوبة
 RUN apt-get update && apt-get install -y \
     libpng-dev libonig-dev libxml2-dev zip unzip libzip-dev \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd zip
 
-# تفعيل الـ Rewrite لعمل الراوتات بشكل صحيح
+# تفعيل الـ Rewrite وضبط الـ MPM
 RUN a2enmod rewrite
+RUN a2dismod mpm_event || true
+RUN a2enmod mpm_prefork || true
 
 # ضبط مسار الموقع
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
@@ -22,13 +22,10 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY . /var/www/html
 WORKDIR /var/www/html
 
-# تثبيت الحزم
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# سكربت بيضبط بورت Apache وقت التشغيل (مش وقت البناء)
-# لأنه Railway بيحدد $PORT ديناميكياً كل مرة بيشتغل فيها الكونتينر
 RUN echo '#!/bin/bash\n\
 set -e\n\
 PORT="${PORT:-80}"\n\
@@ -40,7 +37,8 @@ php artisan config:clear\n\
 echo ">>> Running migrations"\n\
 php artisan migrate --force || echo ">>> MIGRATION FAILED, continuing anyway"\n\
 echo ">>> Starting Apache"\n\
-exec apache2-foreground\n\' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
+exec apache2-foreground\n\
+' > /usr/local/bin/start.sh && chmod +x /usr/local/bin/start.sh
 
 EXPOSE 8080
 

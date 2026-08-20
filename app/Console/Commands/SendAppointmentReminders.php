@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Models\Appointment;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\AppointmentReminder;
@@ -56,12 +57,13 @@ class SendAppointmentReminders extends Command
             $messaging = app('firebase.messaging');
             $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
             $formattedTime = Carbon::parse($appointment->appointment_time)->format('h:i A');
+            $body = "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.";
 
             $message = CloudMessage::fromArray([
                 'token' => $token,
                 'notification' => [
                     'title' => 'Confirm Your Attendance 🔔',
-                    'body' => "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.",
+                    'body' => $body,
                 ],
                 'data' => [
                     'click_action'      => 'FLUTTER_NOTIFICATION_CLICK',
@@ -79,6 +81,17 @@ class SendAppointmentReminders extends Command
 
             $messaging->send($message);
             Log::info('Firebase reminder sent for Appointment ID: ' . $appointment->id);
+
+            // تخزين الإشعار بالداتابيس عشان يظهر بداشبورد/تطبيق المريض
+            if ($appointment->patient && $appointment->patient->user) {
+                Notification::create([
+                    'user_id' => $appointment->patient->user->id,
+                    'title'   => 'Confirm Your Attendance 🔔',
+                    'body'    => $body,
+                    'type'    => 'appointment_reminder',
+                    'data'    => ['appointment_id' => $appointment->id],
+                ]);
+            }
         } catch (\Exception $e) {
             Log::error('Firebase failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }

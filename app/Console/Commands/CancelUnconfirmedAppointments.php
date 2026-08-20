@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Models\Appointment;
+use App\Models\Notification;
 use App\Services\AppointmentServices;
 use App\Services\FcmService;
 use Illuminate\Console\Command;
@@ -58,12 +59,13 @@ class CancelUnconfirmedAppointments extends Command
         try {
             $messaging = app('firebase.messaging');
                         $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
+                        $body = 'sorry, your appointment with Dr. ' . $doctorName . ' on ' . $appointment->appointment_time->format('Y-m-d H:i') . ' has been cancelled due to non-payment.';
 
             $message = CloudMessage::fromArray([
                 'token' => $token,
                 'notification' => [
                     'title' => 'cancellation of your appointment',
-                    'body' =>'sorry, your appointment with Dr. ' . $doctorName . ' on ' . $appointment->appointment_time->format('Y-m-d H:i') . ' has been cancelled due to non-payment.',
+                    'body' => $body,
                 ],
                 'data' => [
                     'click_action'      => 'FLUTTER_NOTIFICATION_CLICK',
@@ -80,9 +82,22 @@ class CancelUnconfirmedAppointments extends Command
 
             $messaging->send($message);
             Log::info('Firebase cancellation notification sent for Appointment ID: ' . $appointment->id);
+
+            // تخزين الإشعار بالداتابيس عشان يظهر بداشبورد/تطبيق المريض
+            // ملاحظة: هون $appointment->patient->fcm_token مباشرة (مش patient->user->fcm_token
+            // متل الكوماند التانية) فافترضت إنو patient هو نفسو الـ User model.
+            // إذا مش هيك بمشروعك، بدلي patient->id بـ patient->user->id
+            if ($appointment->patient) {
+                Notification::create([
+                    'user_id' => $appointment->patient->id,
+                    'title'   => 'cancellation of your appointment',
+                    'body'    => $body,
+                    'type'    => 'appointment_cancelled',
+                    'data'    => ['appointment_id' => $appointment->id],
+                ]);
+            }
         } catch (\Exception $e) {
             Log::error('Firebase cancellation failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }
     }
     }
-

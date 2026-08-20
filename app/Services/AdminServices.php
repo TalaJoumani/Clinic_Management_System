@@ -208,7 +208,7 @@ class AdminServices
                 'quantity_changed'=>1,
               ]);
               if($item->quantity<=$item->min_quantity){
-                                $this->sendLowStockNotification($item);
+                $this->sendLowStockNotification($item);
               }
               return $item->fresh();
             }

@@ -48,6 +48,8 @@ Route::get('getMyProfile', [userController::class, 'getMyProfile']);
     Route::put('updateDoctor', [AdminController::class, 'updateDoctor']);
     Route::get('getItems',[AdminController::class,'getItems']);
     Route::post('useItem/{id}',[AdminController::class,'useItem']);
+    Route::post('addOffer',[AdminController::class,'createOffer']);
+    
 
 
 

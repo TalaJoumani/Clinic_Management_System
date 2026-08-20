@@ -9,6 +9,7 @@ use Kreait\Firebase\Messaging\CloudMessage;
 use Illuminate\Support\Facades\Log;
 use App\Models\Inventory_logs;
 use App\Models\Item;
+use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -114,14 +115,17 @@ class SuperAdminServices
             try{
                  $admin = User::where('role', 'admin')->first();
 
-        if ($admin && $admin->token) {
+                 $title = 'Item Restocked 📦';
+                 $body  = "The Super Admin has added {$addedQuantity} to '{$item->name}'. New quantity: {$item->quantity}";
+
+        if ($admin && $admin->fcm_token) {
             $messaging = app('firebase.messaging');
 
             $message = CloudMessage::fromArray([
-                'token' => $admin->token,
+                'token' => $admin->fcm_token,
                 'notification' => [
-                    'title' => 'Item Restocked 📦',
-                    'body' => "The Super Admin has added {$addedQuantity} to '{$item->name}'. New quantity: {$item->quantity}",
+                    'title' => $title,
+                    'body' => $body,
                 ],
                 'data' => [
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
@@ -137,6 +141,17 @@ class SuperAdminServices
             ]);
 
             $messaging->send($message);
+        }
+
+        // تخزين الإشعار بالداتابيس (بغض النظر عن وجود fcm_token) عشان يظهر بالداشبورد
+        if ($admin) {
+            Notification::create([
+                'user_id' => $admin->id,
+                'title'   => $title,
+                'body'    => $body,
+                'type'    => 'item_restocked',
+                'data'    => ['item_id' => $item->id, 'added_quantity' => $addedQuantity],
+            ]);
         }
     } catch (\Exception $e) {
         Log::error('Failed to send restock notification: ' . $e->getMessage());
@@ -317,5 +332,3 @@ public function getAllItems()
 }
 
 }
-
-            

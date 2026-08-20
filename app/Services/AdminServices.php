@@ -6,6 +6,7 @@ use App\Models\Doctor;
 use App\Models\User;
 use App\Image\ImageUpload;
 use App\Models\Inventory_logs;
+use App\Models\Notification;
 use App\Models\Offer;
 use App\Models\Item;
 use Illuminate\Support\Facades\Hash;
@@ -217,20 +218,24 @@ class AdminServices
 
         /**
          * Handle low stock notification for an item.
-         * Currently logs a warning; replace with email/notification as needed.
+         * يبعت FCM push + يخزن الإشعار بالداتابيس عشان يظهر بالداشبورد (bell icon).
          */
         public function sendLowStockNotification(Item $item)
         {
             try{
                 $superAdmin=User::where('role','super_admin')->first();
+
+                $title = 'Low Stock Alert⚠️';
+                $body  = "The item '{$item->name}' has reached its minimum quantity. Current quantity: {$item->quantity}";
+
                 if($superAdmin && $superAdmin->fcm_token){
                     $token=$superAdmin->fcm_token;
                     $messaging = app('firebase.messaging');
                     $message = CloudMessage::fromArray([
                         'token'=>$token,
                         'notification'=>[
-                            'title'=>'Low Stock Alert⚠️',
-                             'body' => "The item '{$item->name}' has reached its minimum quantity. Current quantity: {$item->quantity}",
+                            'title'=>$title,
+                             'body' => $body,
                 ],
                 'data' => [
                     'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
@@ -248,9 +253,20 @@ class AdminServices
             // 3. إرسال الإشعار
             $messaging->send($message);
         }
+
+        // تخزين الإشعار بالداتابيس (بغض النظر عن وجود fcm_token) عشان يظهر بالداشبورد
+        if ($superAdmin) {
+            Notification::create([
+                'user_id' => $superAdmin->id,
+                'title'   => $title,
+                'body'    => $body,
+                'type'    => 'low_stock',
+                'data'    => ['item_id' => $item->id],
+            ]);
+        }
     } catch (\Exception $e) {
         // في حال فشل الإشعار لأي سبب، لا نوقف عملية الخصم بل نتجاهل خطأ الإشعار أو نسجله
         Log::error('Failed to send low stock notification: ' . $e->getMessage());
     }
  }
-}   
+}

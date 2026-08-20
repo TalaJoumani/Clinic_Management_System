@@ -80,6 +80,8 @@ Route::get('getMyProfile', [userController::class, 'getMyProfile']);
     Route::get('getAppointmentPatient',[PatientController::class,'getAppointmentPatient']);
     Route::get('getActiveOffers',[PatientController::class,'getActiveOffers']);
 
-     Route::post('updateFcmToken', [NotificationController::class, 'updateToken']);
+    Route::post('updateFcmToken', [NotificationController::class, 'updateToken']);
     Route::post('generalTestNotification', [NotificationController::class, 'generalTestNotification']);
+    Route::get('notifications', [NotificationController::class, 'index']);
+    Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead']);
 });

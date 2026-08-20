@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Appointment;
 use App\Models\Item;
+use App\Models\Notification;
 use App\Services\AdminServices;
 use App\Services\SuperAdminServices;
 use Illuminate\Support\Facades\Log;
@@ -19,6 +20,44 @@ class NotificationController extends Controller
        $request->user()->update(['fcm_token' => $request->fcm_token]);
          return response()->json(['message' => 'Token saved successfully']);
     }
+
+    /**
+     * جلب إشعارات المستخدم الحالي (للداشبورد / bell icon).
+     */
+    public function index(Request $request)
+    {
+        $notifications = Notification::where('user_id', $request->user()->id)
+            ->latest()
+            ->limit(50)
+            ->get();
+
+        return response()->json($notifications);
+    }
+
+    /**
+     * تحديد إشعار كمقروء.
+     */
+    public function markAsRead($id)
+    {
+        $notification = Notification::findOrFail($id);
+        $notification->update(['read_at' => now()]);
+        return response()->json(['message' => 'marked as read']);
+    }
+
+    /**
+     * تخزين إشعار بالداتابيس (مصدر البيانات لل bell icon بالداشبورد).
+     */
+    private function storeNotification($userId, $title, $body, $type, $data = [])
+    {
+        return Notification::create([
+            'user_id' => $userId,
+            'title'   => $title,
+            'body'    => $body,
+            'type'    => $type,
+            'data'    => $data,
+        ]);
+    }
+
 public function generalTestNotification(Request $request)
 {
     $request->validate([
@@ -91,12 +130,13 @@ public function generalTestNotification(Request $request)
         try {
             $messaging = app('firebase.messaging');
                         $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
+                        $body = 'sorry, your appointment with Dr. ' . $doctorName . ' on ' . $appointment->appointment_time->format('Y-m-d H:i') . ' has been cancelled due to non-payment.';
 
             $message = CloudMessage::fromArray([
                 'token' => $token,
                 'notification' => [
                     'title' => 'cancellation of your appointment',
-                    'body' =>'sorry, your appointment with Dr. ' . $doctorName . ' on ' . $appointment->appointment_time->format('Y-m-d H:i') . ' has been cancelled due to non-payment.',
+                    'body' => $body,
                 ],
                 'data' => [
                     'click_action'      => 'FLUTTER_NOTIFICATION_CLICK',
@@ -113,6 +153,15 @@ public function generalTestNotification(Request $request)
 
             $messaging->send($message);
             Log::info('Firebase cancellation notification sent for Appointment ID: ' . $appointment->id);
+
+            // تخزين الإشعار بالداتابيس عشان يظهر بالداشبورد
+            $this->storeNotification(
+                $appointment->doctor->user->id,
+                'cancellation of your appointment',
+                $body,
+                'appointment_cancelled',
+                ['appointment_id' => $appointment->id]
+            );
         } catch (\Exception $e) {
             Log::error('Firebase cancellation failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }
@@ -124,12 +173,13 @@ public function generalTestNotification(Request $request)
             $messaging = app('firebase.messaging');
             $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
             $formattedTime = Carbon::parse($appointment->appointment_time)->format('h:i A');
+            $body = "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.";
 
             $message = CloudMessage::fromArray([
                 'token' => $token,
                 'notification' => [
                     'title' => 'Confirm Your Attendance 🔔',
-                    'body' => "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.",
+                    'body' => $body,
                 ],
                 'data' => [
                     'click_action'      => 'FLUTTER_NOTIFICATION_CLICK',
@@ -147,10 +197,17 @@ public function generalTestNotification(Request $request)
 
             $messaging->send($message);
             Log::info('Firebase reminder sent for Appointment ID: ' . $appointment->id);
+
+            // تخزين الإشعار بالداتابيس عشان يظهر بالداشبورد
+            $this->storeNotification(
+                $appointment->doctor->user->id,
+                'Confirm Your Attendance 🔔',
+                $body,
+                'appointment_reminder',
+                ['appointment_id' => $appointment->id]
+            );
         } catch (\Exception $e) {
             Log::error('Firebase failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }
     }
 }
-
-

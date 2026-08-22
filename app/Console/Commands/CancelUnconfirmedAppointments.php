@@ -4,11 +4,13 @@ namespace App\Console\Commands;
 
 use App\Models\Appointment;
 use App\Models\Notification;
+use App\Models\User;
 use App\Services\AppointmentServices;
 use App\Services\FcmService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Messaging\CloudMessage;
+use Carbon\Carbon;
 
 class CancelUnconfirmedAppointments extends Command
 {
@@ -46,7 +48,7 @@ class CancelUnconfirmedAppointments extends Command
                 'status' => 'cancelled'
             ]);
             $patient = $appointment->patient;
-            if ($patient && $patient->fcm_token) {
+            if ($patient) {
                 $this->sendCancellationNotification($patient->fcm_token, $appointment);
             }
         }
@@ -57,10 +59,28 @@ class CancelUnconfirmedAppointments extends Command
 
     public function sendCancellationNotification($token, $appointment) {
         try {
-            $messaging = app('firebase.messaging');
-                        $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
-                        $body = 'sorry, your appointment with Dr. ' . $doctorName . ' on ' . $appointment->appointment_time->format('Y-m-d H:i') . ' has been cancelled due to non-payment.';
+            // doctor_id stores users.id (Flutter / booking contract)
+            $doctorUser = User::find($appointment->doctor_id);
+            $doctorName = $doctorUser
+                ? trim(($doctorUser->first_name ?? '') . ' ' . ($doctorUser->last_name ?? ''))
+                : 'the doctor';
+            $body = 'sorry, your appointment with Dr. ' . $doctorName . ' on ' . Carbon::parse($appointment->appointment_time)->format('Y-m-d H:i') . ' has been cancelled due to non-payment.';
 
+            if ($appointment->patient) {
+                Notification::create([
+                    'user_id' => $appointment->patient->id,
+                    'title'   => 'cancellation of your appointment',
+                    'body'    => $body,
+                    'type'    => 'appointment_cancelled',
+                    'data'    => ['appointment_id' => $appointment->id],
+                ]);
+            }
+
+            if (empty($token)) {
+                return;
+            }
+
+            $messaging = app('firebase.messaging');
             $message = CloudMessage::fromArray([
                 'token' => $token,
                 'notification' => [
@@ -82,22 +102,8 @@ class CancelUnconfirmedAppointments extends Command
 
             $messaging->send($message);
             Log::info('Firebase cancellation notification sent for Appointment ID: ' . $appointment->id);
-
-            // تخزين الإشعار بالداتابيس عشان يظهر بداشبورد/تطبيق المريض
-            // ملاحظة: هون $appointment->patient->fcm_token مباشرة (مش patient->user->fcm_token
-            // متل الكوماند التانية) فافترضت إنو patient هو نفسو الـ User model.
-            // إذا مش هيك بمشروعك، بدلي patient->id بـ patient->user->id
-            if ($appointment->patient) {
-                Notification::create([
-                    'user_id' => $appointment->patient->id,
-                    'title'   => 'cancellation of your appointment',
-                    'body'    => $body,
-                    'type'    => 'appointment_cancelled',
-                    'data'    => ['appointment_id' => $appointment->id],
-                ]);
-            }
         } catch (\Exception $e) {
             Log::error('Firebase cancellation failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }
     }
-    }
+}

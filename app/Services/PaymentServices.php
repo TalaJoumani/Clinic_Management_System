@@ -5,6 +5,7 @@ use App\Models\Appointment;
 use App\Models\Medical_records;
 use App\Models\Notification;
 use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Kreait\Firebase\Messaging\CloudMessage;
@@ -108,35 +109,36 @@ class PaymentServices {
                 'appointment_id'=>$appointmentId
             ]);
         
-       // تخزين إشعار بالداتابيس للطبيب (بيظهر بالـ bell icon) بغض النظر عن نجاح FCM
+       // Flutter doctor notification: doctor_id stores users.id, fcm_token is on users.
+        $doctorUser = User::find($appointment->doctor_id);
+        $doctorName = $doctorUser
+            ? trim(($doctorUser->first_name ?? '') . ' ' . ($doctorUser->last_name ?? ''))
+            : 'the doctor';
+
         try {
-            $appointment->load('doctor');
-            if ($appointment->doctor) {
-                $doctorName = $appointment->doctor->first_name . ' ' . $appointment->doctor->last_name;
+            if ($doctorUser) {
                 Notification::create([
-                    'user_id' => $appointment->doctor_id,
+                    'user_id' => $doctorUser->id,
                     'title'   => 'new appointment 🔔',
                     'body'    => 'payment completed and medical record created for patient',
                     'type'    => 'payment_completed',
-                    'data'    => ['appointment_id' => $appointmentId, 'patient_id' => $appointment->patient_id, 'doctor_name' => $doctorName],
+                    'data'    => [
+                        'appointment_id' => $appointmentId,
+                        'patient_id' => $appointment->patient_id,
+                        'doctor_name' => $doctorName,
+                    ],
                 ]);
             }
         } catch (\Exception $e) {
             Log::error('Store doctor notification failed: ' . $e->getMessage());
         }
 
-       // إرسال إشعار عبر الفايربيز للطبيب (best-effort)
-        $firebase='failed';
+        $firebase = 'failed';
         try {
-            $appointment->load('doctor'); 
-            
-            if ($appointment->doctor && $appointment->doctor->fcm_token) {
-                $token = $appointment->doctor->fcm_token;
-                
-                // رسالة الإشعار
+            if ($doctorUser && !empty($doctorUser->fcm_token)) {
+                $token = $doctorUser->fcm_token;
                 $messaging = app('firebase.messaging');
-                $doctorName = $appointment->doctor->first_name . ' ' . $appointment->doctor->last_name;
-                
+
                 $message = CloudMessage::fromArray([
                     'token' => $token,
                     'notification' => [
@@ -149,7 +151,7 @@ class PaymentServices {
                         'appointment_id' => (string) $appointment->id,
                         'patient_id' => (string) $appointment->patient_id,
                     ],
-                  'android' => [
+                    'android' => [
                         'notification' => [
                             'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
                             'importance' => 'HIGH',
@@ -158,13 +160,12 @@ class PaymentServices {
                 ]);
 
                 $messaging->send($message);
-                $firebase='notification sent success:'.$token;}
-                else{
-                    $firebase='failed (no fcm_token)';
-                }
-            
+                $firebase = 'notification sent success:' . $token;
+            } else {
+                $firebase = 'failed (no fcm_token)';
+            }
         } catch (\Exception $e) {
-            $firebase='failed';
+            $firebase = 'failed';
             Log::error('Firebase notification failed: ' . $e->getMessage());
         }
         

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use App\Models\Item;
 use App\Models\Notification;
+use App\Models\User;
 use App\Services\AdminServices;
 use App\Services\SuperAdminServices;
 use Illuminate\Support\Facades\Log;
@@ -122,11 +123,13 @@ public function generalTestNotification(Request $request)
 
     public function sendCancellationNotification($token, $appointment) {
         try {
-            $appointment->load('doctor');
-            $doctorName = $appointment->doctor ? ($appointment->doctor->first_name . ' ' . $appointment->doctor->last_name) : 'the doctor';
+            // doctor_id stores users.id (Flutter / booking contract)
+            $doctorUser = User::find($appointment->doctor_id);
+            $doctorName = $doctorUser
+                ? trim(($doctorUser->first_name ?? '') . ' ' . ($doctorUser->last_name ?? ''))
+                : 'the doctor';
             $body = 'sorry, your appointment with Dr. ' . $doctorName . ' on ' . Carbon::parse($appointment->appointment_time)->format('Y-m-d H:i') . ' has been cancelled due to non-payment.';
 
-            // تخزين الإشعار بالداتابيس عشان يظهر بالمريض (bell icon) بغض النظر عن نجاح FCM
             try {
                 $this->storeNotification(
                     $appointment->patient_id,
@@ -137,6 +140,10 @@ public function generalTestNotification(Request $request)
                 );
             } catch (\Exception $storeError) {
                 Log::error('Store cancellation notification failed: ' . $storeError->getMessage());
+            }
+
+            if (empty($token)) {
+                return;
             }
 
             $messaging = app('firebase.messaging');
@@ -169,22 +176,31 @@ public function generalTestNotification(Request $request)
     
     public function sendFirebaseNotification($token, $appointment) {
         try {
-            $appointment->load('doctor');
-            $doctorName = $appointment->doctor ? ($appointment->doctor->first_name . ' ' . $appointment->doctor->last_name) : 'the doctor';
+            // doctor_id stores users.id (Flutter / booking contract)
+            $doctorUser = User::find($appointment->doctor_id);
+            $doctorName = $doctorUser
+                ? trim(($doctorUser->first_name ?? '') . ' ' . ($doctorUser->last_name ?? ''))
+                : 'the doctor';
             $formattedTime = Carbon::parse($appointment->appointment_time)->format('h:i A');
             $body = "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.";
 
-            // تخزين الإشعار بالداتابيس عشان يظهر بالمريض (bell icon) بغض النظر عن نجاح FCM
             try {
                 $this->storeNotification(
                     $appointment->patient_id,
                     'Confirm Your Attendance 🔔',
                     $body,
                     'appointment_reminder',
-                    ['appointment_id' => $appointment->id]
+                    [
+                        'appointment_id' => $appointment->id,
+                        'action_required' => 'confirm_and_pay',
+                    ]
                 );
             } catch (\Exception $storeError) {
                 Log::error('Store reminder notification failed: ' . $storeError->getMessage());
+            }
+
+            if (empty($token)) {
+                return;
             }
 
             $messaging = app('firebase.messaging');

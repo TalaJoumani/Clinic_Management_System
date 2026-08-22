@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\Appointment;
 use App\Models\Notification;
+use App\Models\User;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\AppointmentReminder;
@@ -57,12 +58,14 @@ class SendAppointmentReminders extends Command
 
     public function sendFirebaseNotification($token, $appointment) {
         try {
-            $appointment->load('doctor');
-            $doctorName = $appointment->doctor ? ($appointment->doctor->first_name . ' ' . $appointment->doctor->last_name) : 'the doctor';
+            // doctor_id stores users.id (Flutter / booking contract)
+            $doctorUser = User::find($appointment->doctor_id);
+            $doctorName = $doctorUser
+                ? trim(($doctorUser->first_name ?? '') . ' ' . ($doctorUser->last_name ?? ''))
+                : 'the doctor';
             $formattedTime = Carbon::parse($appointment->appointment_time)->format('h:i A');
             $body = "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.";
 
-            // تخزين الإشعار بالداتابيس عشان يظهر بتطبيق المريض بغض النظر عن نجاح FCM
             try {
                 if ($appointment->patient) {
                     Notification::create([
@@ -70,7 +73,10 @@ class SendAppointmentReminders extends Command
                         'title'   => 'Confirm Your Attendance 🔔',
                         'body'    => $body,
                         'type'    => 'appointment_reminder',
-                        'data'    => ['appointment_id' => $appointment->id],
+                        'data'    => [
+                            'appointment_id' => $appointment->id,
+                            'action_required' => 'confirm_and_pay',
+                        ],
                     ]);
                 }
             } catch (\Exception $storeError) {

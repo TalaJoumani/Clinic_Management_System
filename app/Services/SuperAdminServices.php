@@ -118,50 +118,53 @@ class SuperAdminServices
         }
 
         public function sendAddNotification($item,$addedQuantity){
-            try{
-                 $admin = User::where('role', 'admin')->first();
+            $title = 'Item Restocked 📦';
+            $body  = "The Super Admin has added {$addedQuantity} to '{$item->name}'. New quantity: {$item->quantity}";
+            $admins = User::where('role', 'admin')->get();
 
-                 $title = 'Item Restocked 📦';
-                 $body  = "The Super Admin has added {$addedQuantity} to '{$item->name}'. New quantity: {$item->quantity}";
+            foreach ($admins as $admin) {
+                // Store first so the Flutter in-app list works even if FCM fails.
+                try {
+                    Notification::create([
+                        'user_id' => $admin->id,
+                        'title'   => $title,
+                        'body'    => $body,
+                        'type'    => 'item_restocked',
+                        'data'    => ['item_id' => $item->id, 'added_quantity' => $addedQuantity],
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error('Failed to store restock notification for admin ' . $admin->id . ': ' . $e->getMessage());
+                }
 
-        if ($admin && $admin->fcm_token) {
-            $messaging = app('firebase.messaging');
+                if (empty($admin->fcm_token)) {
+                    continue;
+                }
 
-            $message = CloudMessage::fromArray([
-                'token' => $admin->fcm_token,
-                'notification' => [
-                    'title' => $title,
-                    'body' => $body,
-                ],
-                'data' => [
-                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                    'notification_type' => 'item_restocked',
-                    'item_id' => (string) $item->id,
-                ],
-                'android' => [
-                    'notification' => [
-                        'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
-                        'importance'  => 'HIGH',
-                    ]
-                ]
-            ]);
-
-            $messaging->send($message);
-        }
-
-        // تخزين الإشعار بالداتابيس (بغض النظر عن وجود fcm_token) عشان يظهر بالداشبورد
-        if ($admin) {
-            Notification::create([
-                'user_id' => $admin->id,
-                'title'   => $title,
-                'body'    => $body,
-                'type'    => 'item_restocked',
-                'data'    => ['item_id' => $item->id, 'added_quantity' => $addedQuantity],
-            ]);
-        }
-    } catch (\Exception $e) {
-        Log::error('Failed to send restock notification: ' . $e->getMessage());
-    }
+                try {
+                    $messaging = app('firebase.messaging');
+                    $message = CloudMessage::fromArray([
+                        'token' => $admin->fcm_token,
+                        'notification' => [
+                            'title' => $title,
+                            'body' => $body,
+                        ],
+                        'data' => [
+                            'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                            'notification_type' => 'item_restocked',
+                            'item_id' => (string) $item->id,
+                        ],
+                        'android' => [
+                            'notification' => [
+                                'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                                'importance'  => 'HIGH',
+                            ]
+                        ]
+                    ]);
+                    $messaging->send($message);
+                } catch (\Exception $e) {
+                    Log::error('Failed to send restock FCM to admin ' . $admin->id . ': ' . $e->getMessage());
+                }
+            }
 }
 
 public function filter($filters)

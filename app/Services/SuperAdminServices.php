@@ -24,16 +24,23 @@ class SuperAdminServices
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],
             'email'      => $data['email'],
-            'password'   => Hash::make($data['password']),
+            // User model casts password as hashed — لا نعمل Hash::make مرتين
+            'password'   => $data['password'],
             'role'       => 'admin',
-            'birth'      => $data['birth']??null,
+            'birth'      => $data['birth'] ?? null,
             'phone'      => $data['phone'],
             'gender'     => $data['gender'],
             'is_verified' => true,
         ]);
-            Mail::to($admin->email)->send(new AdminWelcome($admin, $data['password']));
-        return $admin;
 
+        try {
+            Mail::to($admin->email)->send(new AdminWelcome($admin, $data['password']));
+        } catch (\Throwable $e) {
+            // إنشاء المدير ينجح حتى لو فشل الإيميل (إعدادات SMTP / شعار ناقص)
+            Log::error('Failed to send admin welcome email: ' . $e->getMessage());
+        }
+
+        return $admin;
     }
 
 

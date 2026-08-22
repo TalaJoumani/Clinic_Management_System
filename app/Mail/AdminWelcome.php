@@ -52,10 +52,15 @@ class AdminWelcome extends Mailable
      */
     public function attachments(): array
     {
+        $logoPath = public_path('images/logo.jpg');
+        if (!is_file($logoPath)) {
+            return [];
+        }
+
         return [
-              Attachment::fromPath(public_path('images/logo.jpg'))
+            Attachment::fromPath($logoPath)
                 ->as('logo.jpg')
-                ->withMime('images/jpeg'),
+                ->withMime('image/jpeg'),
         ];
     }
 }

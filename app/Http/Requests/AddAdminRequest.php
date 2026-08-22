@@ -28,7 +28,7 @@ class AddAdminRequest extends FormRequest
             'email'      => 'required|email|unique:users,email',
             'password'   => 'required|string|min:8',
             'birth'      => 'nullable|date',
-            'phone'      => 'required|max=10|unique:users,phone',
+            'phone'      => 'required|string|max:10|unique:users,phone',
             'gender'     => 'required|in:male,female',
             
         ];

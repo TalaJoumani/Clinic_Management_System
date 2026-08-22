@@ -27,7 +27,7 @@ class SuperAdminController extends Controller
         return response()->json([
             'message' => 'Admin added successfully',
             'admin' => $admin
-        ],210);
+        ],201);
     }
 
  

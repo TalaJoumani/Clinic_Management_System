@@ -13,7 +13,6 @@ use App\Models\Notification;
 use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 
 class SuperAdminServices

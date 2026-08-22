@@ -27,7 +27,7 @@ class AddDoctorRequest extends FormRequest
             'last_name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'phone' => 'required|string|max:20',
+            'phone' => 'required|string|max:10',
             'specialization' => 'required|string|in:Cardiology,Dermatology,Neurology,Pediatrics,Psychiatry,Radiology',
             'day' => 'required|in:Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,All',
             'start_time' => 'required|date_format:H:i|after_or_equal:08:00|before_or_equal:22:00',

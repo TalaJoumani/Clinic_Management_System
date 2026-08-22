@@ -43,12 +43,8 @@ class PatientServices{
                 'message'=>'this user not found',
             ],403);
         }
-        $patient=Patient::where('user_id',$user->id)->first();
-        if(!$patient){
-             return response()->json([
-                'message'=>'this services only for patient',
-            ],403);
-        }
+        // Reference data (distinct doctors.specialization) — available to
+        // every authenticated role so Add/Edit Doctor forms can be dynamic.
         $Spcializations=Doctor::select('specialization')->distinct()->get();
         return response()->json([
             'message'=>$Spcializations,
@@ -150,12 +146,30 @@ public function exportMedicalRecords(){
                 'doctor_name'           => trim(
                     optional($record->doctor)->first_name . ' ' . optional($record->doctor)->last_name
                 ),
-                'doctor_specialization' => optional($record->doctor)->specialization,
+                'doctor_specialization' => optional($record->doctor->doctor)->specialization,
+            ];
+        });
+        $appointments=Appointment::with(['doctor','location'])
+        ->where('patient_id',$user->id)
+        ->orderBy('appointment_time','desc')
+        ->get()
+        ->map(function ($appointment) {
+            return [
+                'appointment_time'      => $appointment->appointment_time,
+                'type'                  => $appointment->type,
+                'status'                => $appointment->status,
+                'meet_link'             => $appointment->meet_link,
+                'doctor_name'           => trim(
+                    optional($appointment->doctor)->first_name . ' ' . optional($appointment->doctor)->last_name
+                ),
+                'location_address'      => optional($appointment->location)->address,
             ];
         });
         $data=[
             'user'=>$user,
+            'patient'=>$user->patient,
             'medicalRecords'=>$medicalRecords,
+            'appointments'=>$appointments,
             'date'=>now()->format('Y-m-d H:i:s'),
         ];
         $pdf=Pdf::loadView('Pdf.medical_Record',$data);
@@ -170,7 +184,7 @@ public function exportMedicalRecords(){
             ],403);
         }
       $patientId=$user->id;
-      $appointments=Appointment::with(['doctor.user','doctor'])->where('patient_id',$patientId)
+      $appointments=Appointment::with(['doctor','location'])->where('patient_id',$patientId)
       ->orderBy('appointment_time','desc')
       ->get();
       return response()->json([

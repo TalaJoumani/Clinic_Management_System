@@ -3,7 +3,9 @@ namespace App\Services;
 use App\Mail\meetLink;
 use App\Models\Appointment;
 use App\Models\Medical_records;
+use App\Models\Notification;
 use App\Models\Payment;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Kreait\Firebase\Messaging\CloudMessage;
 
@@ -84,7 +86,11 @@ class PaymentServices {
         $meetLink=null;
         if($appointment->type === 'online') {
             $meetLink = "https://meet.google.com/" . strtolower(\Illuminate\Support\Str::random(3) . '-' . \Illuminate\Support\Str::random(4) . '-' . \Illuminate\Support\Str::random(3));
-            Mail::to($appointment->patient->email)->send( new meetLink ($meetLink, $appointment));
+            try {
+                Mail::to($appointment->patient->email)->send( new meetLink ($meetLink, $appointment));
+            } catch (\Exception $e) {
+                Log::error('Meet link email failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
+            }
         }
         $payment->update([
             'amount_paid' => $payment->total_amount, 
@@ -102,17 +108,34 @@ class PaymentServices {
                 'appointment_id'=>$appointmentId
             ]);
         
-       // إرسال إشعار عبر الفايربيز للطبيب
+       // تخزين إشعار بالداتابيس للطبيب (بيظهر بالـ bell icon) بغض النظر عن نجاح FCM
         try {
-            // جلب علاقة الطبيب مع جدول المستخدمين للحصول على fcm_token
-            $appointment->load('doctor.user'); 
+            $appointment->load('doctor');
+            if ($appointment->doctor) {
+                $doctorName = $appointment->doctor->first_name . ' ' . $appointment->doctor->last_name;
+                Notification::create([
+                    'user_id' => $appointment->doctor_id,
+                    'title'   => 'new appointment 🔔',
+                    'body'    => 'payment completed and medical record created for patient',
+                    'type'    => 'payment_completed',
+                    'data'    => ['appointment_id' => $appointmentId, 'patient_id' => $appointment->patient_id, 'doctor_name' => $doctorName],
+                ]);
+            }
+        } catch (\Exception $e) {
+            Log::error('Store doctor notification failed: ' . $e->getMessage());
+        }
+
+       // إرسال إشعار عبر الفايربيز للطبيب (best-effort)
+        $firebase='failed';
+        try {
+            $appointment->load('doctor'); 
             
-            if ($appointment->doctor && $appointment->doctor->user && $appointment->doctor->user->fcm_token) {
-                $token = $appointment->doctor->user->fcm_token;
+            if ($appointment->doctor && $appointment->doctor->fcm_token) {
+                $token = $appointment->doctor->fcm_token;
                 
                 // رسالة الإشعار
                 $messaging = app('firebase.messaging');
-                $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
+                $doctorName = $appointment->doctor->first_name . ' ' . $appointment->doctor->last_name;
                 
                 $message = CloudMessage::fromArray([
                     'token' => $token,
@@ -137,11 +160,12 @@ class PaymentServices {
                 $messaging->send($message);
                 $firebase='notification sent success:'.$token;}
                 else{
-                    $firebase='failed';
+                    $firebase='failed (no fcm_token)';
                 }
             
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Firebase notification failed: ' . $e->getMessage());
+            $firebase='failed';
+            Log::error('Firebase notification failed: ' . $e->getMessage());
         }
         
          return [

@@ -74,20 +74,14 @@ public function generalTestNotification(Request $request)
             
             // 1. إشعار التذكير بالموعد
             case 'reminder':
-                $appointment = Appointment::with('doctor.user')->findOrFail($id);
-                $token = $appointment->doctor->user->fcm_token ?? null;
-                if ($token) {
-                    $this->sendFirebaseNotification($token, $appointment);
-                }
+                $appointment = Appointment::with(['doctor', 'patient'])->findOrFail($id);
+                $this->sendFirebaseNotification($appointment->patient->fcm_token ?? null, $appointment);
                 break;
 
             // 2. إشعار إلغاء الموعد
             case 'cancellation':
-                $appointment = Appointment::with('doctor.user')->findOrFail($id);
-                $token = $appointment->doctor->user->fcm_token ?? null;
-                if ($token) {
-                    $this->sendCancellationNotification($token, $appointment);
-                }
+                $appointment = Appointment::with(['doctor', 'patient'])->findOrFail($id);
+                $this->sendCancellationNotification($appointment->patient->fcm_token ?? null, $appointment);
                 break;
 
             // 3. إشعار الدفع (موجود ضمن PaymentServices حسب كودك)
@@ -128,10 +122,24 @@ public function generalTestNotification(Request $request)
 
     public function sendCancellationNotification($token, $appointment) {
         try {
-            $messaging = app('firebase.messaging');
-                        $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
-                        $body = 'sorry, your appointment with Dr. ' . $doctorName . ' on ' . $appointment->appointment_time->format('Y-m-d H:i') . ' has been cancelled due to non-payment.';
+            $appointment->load('doctor');
+            $doctorName = $appointment->doctor ? ($appointment->doctor->first_name . ' ' . $appointment->doctor->last_name) : 'the doctor';
+            $body = 'sorry, your appointment with Dr. ' . $doctorName . ' on ' . Carbon::parse($appointment->appointment_time)->format('Y-m-d H:i') . ' has been cancelled due to non-payment.';
 
+            // تخزين الإشعار بالداتابيس عشان يظهر بالمريض (bell icon) بغض النظر عن نجاح FCM
+            try {
+                $this->storeNotification(
+                    $appointment->patient_id,
+                    'cancellation of your appointment',
+                    $body,
+                    'appointment_cancelled',
+                    ['appointment_id' => $appointment->id]
+                );
+            } catch (\Exception $storeError) {
+                Log::error('Store cancellation notification failed: ' . $storeError->getMessage());
+            }
+
+            $messaging = app('firebase.messaging');
             $message = CloudMessage::fromArray([
                 'token' => $token,
                 'notification' => [
@@ -153,15 +161,6 @@ public function generalTestNotification(Request $request)
 
             $messaging->send($message);
             Log::info('Firebase cancellation notification sent for Appointment ID: ' . $appointment->id);
-
-            // تخزين الإشعار بالداتابيس عشان يظهر بالداشبورد
-            $this->storeNotification(
-                $appointment->doctor->user->id,
-                'cancellation of your appointment',
-                $body,
-                'appointment_cancelled',
-                ['appointment_id' => $appointment->id]
-            );
         } catch (\Exception $e) {
             Log::error('Firebase cancellation failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }
@@ -170,11 +169,25 @@ public function generalTestNotification(Request $request)
     
     public function sendFirebaseNotification($token, $appointment) {
         try {
-            $messaging = app('firebase.messaging');
-            $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
+            $appointment->load('doctor');
+            $doctorName = $appointment->doctor ? ($appointment->doctor->first_name . ' ' . $appointment->doctor->last_name) : 'the doctor';
             $formattedTime = Carbon::parse($appointment->appointment_time)->format('h:i A');
             $body = "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.";
 
+            // تخزين الإشعار بالداتابيس عشان يظهر بالمريض (bell icon) بغض النظر عن نجاح FCM
+            try {
+                $this->storeNotification(
+                    $appointment->patient_id,
+                    'Confirm Your Attendance 🔔',
+                    $body,
+                    'appointment_reminder',
+                    ['appointment_id' => $appointment->id]
+                );
+            } catch (\Exception $storeError) {
+                Log::error('Store reminder notification failed: ' . $storeError->getMessage());
+            }
+
+            $messaging = app('firebase.messaging');
             $message = CloudMessage::fromArray([
                 'token' => $token,
                 'notification' => [
@@ -197,15 +210,6 @@ public function generalTestNotification(Request $request)
 
             $messaging->send($message);
             Log::info('Firebase reminder sent for Appointment ID: ' . $appointment->id);
-
-            // تخزين الإشعار بالداتابيس عشان يظهر بالداشبورد
-            $this->storeNotification(
-                $appointment->doctor->user->id,
-                'Confirm Your Attendance 🔔',
-                $body,
-                'appointment_reminder',
-                ['appointment_id' => $appointment->id]
-            );
         } catch (\Exception $e) {
             Log::error('Firebase failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }

@@ -69,10 +69,13 @@ class AdminController extends Controller
             'day' => 'in:Saturday,Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,All',
             'start_time' => 'date_format:H:i',
             'end_time' => 'date_format:H:i|after:start_time',
-            'home_visit' => 'boolean',  
-            'price' => 'sometimes|numeric|min:0',    
+            'home_visit' => 'boolean',
+            'price' => 'sometimes|numeric|min:0',
+            // Without this rule validate() strips the uploaded file, so the
+            // service never receives the new photo.
+            'profile_photo' => 'nullable|mimes:jpeg,png,jpg,gif|max:4096',
         ]);
-        
+
         return $this->adminServices->updateDoctor($request->doctorId, $validatedData);
     }
 

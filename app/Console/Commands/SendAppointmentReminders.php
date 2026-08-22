@@ -26,7 +26,7 @@ class SendAppointmentReminders extends Command
         
         $appointments = Appointment::whereBetween('appointment_time', [$start, $end])
             ->where('status', 'confirmed') 
-            ->with(['patient', 'doctor.user'])
+            ->with(['patient', 'doctor'])
             ->get();
 
         if ($appointments->isEmpty()) {
@@ -44,8 +44,11 @@ class SendAppointmentReminders extends Command
                 }
             }
             
-            if ($patient && $patient->user && $patient->user->fcm_token) {
-                $this->sendFirebaseNotification($patient->user->fcm_token, $appointment);
+            if ($patient && $patient->fcm_token) {
+                $this->sendFirebaseNotification($patient->fcm_token, $appointment);
+            } else {
+                Log::info('No fcm_token for patient ' . ($patient ? $patient->id : 'unknown') . ', storing reminder notification only.');
+                $this->sendFirebaseNotification(null, $appointment);
             }
         }
         
@@ -54,11 +57,31 @@ class SendAppointmentReminders extends Command
 
     public function sendFirebaseNotification($token, $appointment) {
         try {
-            $messaging = app('firebase.messaging');
-            $doctorName = $appointment->doctor->user->first_name . ' ' . $appointment->doctor->user->last_name;
+            $appointment->load('doctor');
+            $doctorName = $appointment->doctor ? ($appointment->doctor->first_name . ' ' . $appointment->doctor->last_name) : 'the doctor';
             $formattedTime = Carbon::parse($appointment->appointment_time)->format('h:i A');
             $body = "You have an appointment tomorrow with Dr. {$doctorName} at {$formattedTime}. Tap to confirm and pay remaining amount.";
 
+            // تخزين الإشعار بالداتابيس عشان يظهر بتطبيق المريض بغض النظر عن نجاح FCM
+            try {
+                if ($appointment->patient) {
+                    Notification::create([
+                        'user_id' => $appointment->patient->id,
+                        'title'   => 'Confirm Your Attendance 🔔',
+                        'body'    => $body,
+                        'type'    => 'appointment_reminder',
+                        'data'    => ['appointment_id' => $appointment->id],
+                    ]);
+                }
+            } catch (\Exception $storeError) {
+                Log::error('Store reminder notification failed: ' . $storeError->getMessage());
+            }
+
+            if (!$token) {
+                return;
+            }
+
+            $messaging = app('firebase.messaging');
             $message = CloudMessage::fromArray([
                 'token' => $token,
                 'notification' => [
@@ -81,17 +104,6 @@ class SendAppointmentReminders extends Command
 
             $messaging->send($message);
             Log::info('Firebase reminder sent for Appointment ID: ' . $appointment->id);
-
-            // تخزين الإشعار بالداتابيس عشان يظهر بداشبورد/تطبيق المريض
-            if ($appointment->patient && $appointment->patient->user) {
-                Notification::create([
-                    'user_id' => $appointment->patient->user->id,
-                    'title'   => 'Confirm Your Attendance 🔔',
-                    'body'    => $body,
-                    'type'    => 'appointment_reminder',
-                    'data'    => ['appointment_id' => $appointment->id],
-                ]);
-            }
         } catch (\Exception $e) {
             Log::error('Firebase failed for Appointment ID ' . $appointment->id . ': ' . $e->getMessage());
         }

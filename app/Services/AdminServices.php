@@ -124,7 +124,7 @@ class AdminServices
             ], 403);
         }
         $imagePath=$doctor->profile_photo;
-        if(isset($data['profile_photo'])&& $data['profile_photo']->isVaild()){
+        if(isset($data['profile_photo'])&& $data['profile_photo']->isValid()){
             if($doctor->profile_photo){
             $this->imageUpload->delete($doctor->profile_photo);
         }
@@ -228,6 +228,21 @@ class AdminServices
                 $title = 'Low Stock Alert⚠️';
                 $body  = "The item '{$item->name}' has reached its minimum quantity. Current quantity: {$item->quantity}";
 
+                // تخزين الإشعار بالداتابيس أولاً (بغض النظر عن نجاح FCM) عشان يظهر بالداشبورد
+                if ($superAdmin) {
+                    try {
+                        Notification::create([
+                            'user_id' => $superAdmin->id,
+                            'title'   => $title,
+                            'body'    => $body,
+                            'type'    => 'low_stock',
+                            'data'    => ['item_id' => $item->id],
+                        ]);
+                    } catch (\Exception $storeError) {
+                        Log::error('Store low stock notification failed: ' . $storeError->getMessage());
+                    }
+                }
+
                 if($superAdmin && $superAdmin->fcm_token){
                     $token=$superAdmin->fcm_token;
                     $messaging = app('firebase.messaging');
@@ -252,17 +267,6 @@ class AdminServices
 
             // 3. إرسال الإشعار
             $messaging->send($message);
-        }
-
-        // تخزين الإشعار بالداتابيس (بغض النظر عن وجود fcm_token) عشان يظهر بالداشبورد
-        if ($superAdmin) {
-            Notification::create([
-                'user_id' => $superAdmin->id,
-                'title'   => $title,
-                'body'    => $body,
-                'type'    => 'low_stock',
-                'data'    => ['item_id' => $item->id],
-            ]);
         }
     } catch (\Exception $e) {
         // في حال فشل الإشعار لأي سبب، لا نوقف عملية الخصم بل نتجاهل خطأ الإشعار أو نسجله

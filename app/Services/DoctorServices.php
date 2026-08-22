@@ -7,6 +7,9 @@ use App\Models\Medical_records;
 use App\Models\Patient;
 use App\Image\ImageUpload;
 use App\Models\Location;
+use App\Models\Payment;
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
 
 class DoctorServices{
@@ -21,8 +24,6 @@ public function getAppointmentForDoctor(){
     $doctorId=$doctor->id;
     $query=Appointment::with(['patient','location'])
     ->where('doctor_id',$doctorId)
-    ->where('status','completed')
-    ->whereDate('appointment_time',now()->toDateString())
     ->orderBy('appointment_time','asc')->get();
     return $query;
 }
@@ -174,5 +175,192 @@ public function getPatientLocation(int $appointmentId){
         'location'=>$location,
     ]);
 
+}
+
+public function getDoctorProfile(){
+    $user = auth('sanctum')->user();
+    $doctor = Doctor::with(['user','schedules'])->where('user_id', $user->id)->first();
+    if(!$doctor){
+        return response()->json(['message'=>'this account not doctor'],403);
+    }
+    if($doctor->profile_photo){
+        $doctor->profile_photo = asset('storage/'.$doctor->profile_photo);
+    }
+    return [
+        'data' => $doctor,
+    ];
+}
+
+public function updateDoctorProfile(array $data){
+    $user = auth('sanctum')->user();
+    $doctor = Doctor::with(['user','schedules'])->where('user_id', $user->id)->first();
+    if(!$doctor){
+        return response()->json(['message'=>'this account not doctor'],403);
+    }
+    $imagePath = $doctor->profile_photo;
+    if(isset($data['profile_photo']) && $data['profile_photo']->isValid()){
+        if($doctor->profile_photo){
+            $this->imageUpload->delete($doctor->profile_photo);
+        }
+        $imagePath = $this->imageUpload->upload($data['profile_photo'],'doctor_photo');
+    }
+
+    $doctor->update([
+        'specialization' => $data['specialization'] ?? $doctor->specialization,
+        'home_visit'     => $data['home_visit'] ?? $doctor->home_visit,
+        'profile_photo'  => $imagePath,
+    ]);
+
+    if(isset($data['price'])){
+        $doctor->schedules()->update(['price' => $data['price']]);
+    }
+
+    if(isset($data['password']) && !empty($data['password'])){
+        User::whereKey($user->id)->update([
+            'password' => Hash::make($data['password']),
+        ]);
+    }
+
+    $doctor->load(['user','schedules']);
+    if($doctor->profile_photo){
+        $doctor->profile_photo = asset('storage/'.$doctor->profile_photo);
+    }
+    return [
+        'message' => 'Doctor profile updated successfully',
+        'doctor' => $doctor,
+    ];
+}
+
+public function getDoctorSchedule(){
+    $user = auth('sanctum')->user();
+    $doctor = Doctor::with('schedules')->where('user_id', $user->id)->first();
+    if(!$doctor){
+        return response()->json(['message'=>'this account not doctor'],403);
+    }
+    return [
+        'data' => [
+            'working_days' => $doctor->schedules,
+            'days_off'     => [],
+            'peak_hours'   => [],
+        ],
+    ];
+}
+
+public function updateDoctorSchedule(array $data){
+    $user = auth('sanctum')->user();
+    $doctor = Doctor::where('user_id', $user->id)->first();
+    if(!$doctor){
+        return response()->json(['message'=>'this account not doctor'],403);
+    }
+    $workingDays = $data['working_days'] ?? [];
+    if(!empty($workingDays) && is_array($workingDays)){
+        $doctor->schedules()->delete();
+        foreach($workingDays as $day){
+            if(!is_array($day) || !isset($day['day']) || !isset($day['start_time']) || !isset($day['end_time'])){
+                continue;
+            }
+            $doctor->schedules()->create([
+                'day'        => $day['day'],
+                'start_time' => $day['start_time'],
+                'end_time'   => $day['end_time'],
+                'price'      => $day['price'] ?? 100,
+            ]);
+        }
+    }
+    return [
+        'message' => 'Schedule updated successfully',
+    ];
+}
+
+public function getDoctorInvoices(){
+    $user = auth('sanctum')->user();
+    $appointments = Appointment::with(['patient','payment'])
+        ->where('doctor_id', $user->id)
+        ->orderBy('appointment_time','desc')
+        ->get();
+
+    $invoices = [];
+    foreach($appointments as $appointment){
+        $payment = $appointment->payment;
+        if(!$payment){
+            continue;
+        }
+        $patientName = $appointment->patient
+            ? trim($appointment->patient->first_name . ' ' . $appointment->patient->last_name)
+            : 'Unknown';
+
+        $status = match ($payment->status) {
+            'fully_paid'    => 'paid',
+            'partially_paid'=> 'partial',
+            default         => 'unpaid',
+        };
+
+        $invoices[] = [
+            'id'               => $payment->id,
+            'patient_name'     => $patientName,
+            'appointment_time' => $appointment->appointment_time,
+            'type'             => $appointment->type,
+            'status'           => $status,
+            'total'            => $payment->total_amount,
+            'deposit'          => $payment->amount_paid,
+            'remaining'        => $payment->remaining_amount,
+            'paid_at'          => $payment->status === 'fully_paid' ? $payment->updated_at : null,
+        ];
+    }
+    return [
+        'message' => $invoices,
+    ];
+}
+
+public function getDoctorPatients(){
+    $user = auth('sanctum')->user();
+    $appointments = Appointment::with('patient')
+        ->where('doctor_id', $user->id)
+        ->orderBy('appointment_time','desc')
+        ->get();
+
+    $patients = [];
+    foreach($appointments->groupBy('patient_id') as $patientId => $patientAppointments){
+        $first = $patientAppointments->first();
+        $patient = $first ? $first->patient : null;
+        if(!$patient){
+            continue;
+        }
+        $patients[] = [
+            'user_id'              => $patient->id,
+            'first_name'           => $patient->first_name,
+            'last_name'            => $patient->last_name,
+            'gender'               => $patient->gender,
+            'phone'                => $patient->phone,
+            'email'                => $patient->email,
+            'last_appointment_id'  => $first->id,
+            'last_visit'           => $first->appointment_time,
+            'appointments_count'   => $patientAppointments->count(),
+        ];
+    }
+    return [
+        'message' => $patients,
+    ];
+}
+
+public function getDoctorConsultations(){
+    $user = auth('sanctum')->user();
+    $appointments = Appointment::with(['patient','location'])
+        ->where('doctor_id', $user->id)
+        ->where('type','online')
+        ->orderBy('appointment_time','asc')
+        ->get();
+    return [
+        'message' => $appointments,
+    ];
+}
+
+public function endConsultation(array $data){
+    $paymentService = new PaymentServices();
+    $result = $paymentService->completeFinalPayment($data['appointment_id']);
+    return [
+        'message' => 'Consultation ended and appointment completed',
+        'data' => $result,
+    ];
 }
 }

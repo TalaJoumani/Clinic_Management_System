@@ -24,7 +24,9 @@ class AppointmentServices {
     $workStart = $daySchedules ? Carbon::parse($date . ' ' . $daySchedules->start_time) : null;
     $workEnd = $daySchedules ? Carbon::parse($date . ' ' . $daySchedules->end_time) : null;
 
-    $bookedAppointments = Appointment::where('doctor_id', $doctorId)
+    // المواعيد المخزنة بالداتابيس doctor_id بتساوي user_id التابع للدكتور،
+    // بينما $doctorId هو row id من جدول doctors — فبنجيب user_id قبل الاستعلام
+    $bookedAppointments = Appointment::where('doctor_id', $doctor->user_id)
         ->whereDate('appointment_time', $date)
         ->whereIn('status', ['confirmed', 'pending_deposit'])
         ->pluck('status', 'appointment_time')
